@@ -33,13 +33,12 @@
                          v (gen/vector gen/pos-int k)]
                         (= (first (max3 v k))
                            (apply max v))))
+
 (defspec max3-maxes-are-correctly-ordered 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 3)
                          v (gen/vector gen/pos-int k)]
                         (let [[m s t i j] (max3 v k)]
                           (>= m s t))))
-
-
 
 (defspec max3-max-index-is-correct 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 3)
@@ -95,7 +94,6 @@
                         (= (linear-max2DistinctFolios v1 v2 k)
                            (linear-max2DistinctFolios v2 v1 k))))
 
-
 (defspec max2DistinctFolios-greather-than-each-max 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 2)
                          v1 (gen/vector gen/pos-int k)
@@ -103,8 +101,6 @@
                         (let [m (linear-max2DistinctFolios v1 v2 k)]
                           (and (>= m (apply max v1))
                                (>= m (apply max v2))))))
-
-
 
 (defspec longest-path-is-not-crazy 1000
          (prop'/for-all [k gen/s-pos-int :when (> k 1)]
