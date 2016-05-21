@@ -43,7 +43,6 @@
                         (remove (fn [i] (< i k)) neib)))
                  (:data graph))))
 
-;(println (preprocess-tree test-graph))
 
 (defmacro positive [f x]
   `(if (< 0 ~x)
@@ -333,12 +332,12 @@
                                                  (compute-label-linear (conj edge a) :face edge->faces face->edges))
                                                (get edge->faces edge))))
         (= type :face) (let [[H1 H2] (get face->edges node)
-                             c1 (count (get edge->faces H1))
-                             c2 (count (get edge->faces H2))
+                             ;c1 (count (get edge->faces H1))
+                             ;c2 (count (get edge->faces H2))
                              ]
                          ;(println c1 c2)
-                         (combine-on-face (compute-label-linear H1 (if (= c1 0) :face :edge) edge->faces face->edges)
-                                          (compute-label-linear H2 (if (= c2 0) :face :edge) edge->faces face->edges)))))
+                         (combine-on-face (compute-label-linear H1 :edge edge->faces face->edges)
+                                          (compute-label-linear H2 :edge edge->faces face->edges)))))
 
 (defn longest-path-linear [graph]
   (let [[edges faces] (preprocess-tree graph)]
