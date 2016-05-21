@@ -286,27 +286,23 @@
        (into                                                ;[]
          clojure.lang.PersistentQueue/EMPTY)))
 
-
-
 (defn preprocess-tree [tree]
   (let [[x y] (:root tree)]
     (loop [data (transient (:data tree))
            degrees (transient (compute-degrees tree))
            unprocessed (deg2 degrees)
-           EdgeNodes {[x y] #_{x y} (set/intersection (data x) (data y))}
-           FaceNodes (transient {})]
+           EdgeNodes (transient {[x y] (set/intersection (data x) (data y))})]
       (if (empty? unprocessed)
-        [EdgeNodes (persistent! FaceNodes)]
+        (persistent! EdgeNodes)
         (let [vertex (first unprocessed)
               rst (pop unprocessed)]
-          ;(pprint EdgeNodes FaceNodes)
           (if (or (> 2 (get degrees vertex))
                   (= vertex x)
                   (= vertex y))
-            (recur data degrees rst EdgeNodes FaceNodes)
+            (recur data degrees rst EdgeNodes)
             (let [edge (get data vertex)
-                  u (first edge)                        ;first
-                  v (second edge)                        ;second
+                  u (first edge)
+                  v (second edge)
                   degU (dec (get degrees u))
                   degV (dec (get degrees v))
                   addU (and (not= u x) (not= u y) (= 2 degU))
@@ -325,46 +321,25 @@
                    new-unprocessed
                    (if (= degU 1)
                      EdgeNodes
-                     (update EdgeNodes [u v]                ;edge
-                             conj vertex))
-                   (assoc! FaceNodes [u v vertex] 0 #_(vector [u vertex] [vertex v]
-                                                          ;#{vertex u}
-                                                          ;#{vertex v}
-                                                          ))))))))))
+                     (assoc! EdgeNodes [u v] (conj (get EdgeNodes [u v]) vertex)))))))))))
 
-
-
-(defn compute-label-linear [node type edge->faces face->edges]
+(defn compute-label-linear [node type edge->faces]
   ;(println node type)
   (cond
-        (= type :edge) (let [                               ;edge (set node)
-                             folios (or
-                                      (get edge->faces node)
-                                      (get edge->faces (reverse node))
-                                      )]
-                         (println "faces" node folios)
+        (= type :edge) (let [folios (or (get edge->faces node)
+                                        (get edge->faces (reverse node)))]
+                         ;(println "faces" node folios)
                          (if folios
                            (combine-on-edge (map (fn [a]
-                                                   (compute-label-linear (conj node a) :face edge->faces face->edges))
+                                                   (compute-label-linear (conj node a) :face edge->faces))
                                                  folios))
-                           [1 1 0 0 0 0 0]
-                           ))
-        (= type :face) (let [[u v w] node
-                             H1 [u w]
-                             H2 [w v]
-                             ;(get face->edges (sort node))
-                             ;c1 (count (get edge->faces H1))
-                             ;c2 (count (get edge->faces H2))
-                             ]
-                         (println "edges" node H1 H2)
-                         ;(println c1 c2)
-                         (combine-on-face (compute-label-linear H1 :edge edge->faces face->edges)
-                                          (compute-label-linear H2 :edge edge->faces face->edges)))))
+                           [1 1 0 0 0 0 0]))
+        (= type :face) (let [[u v w] node]
+                         (combine-on-face (compute-label-linear [u w] :edge edge->faces)
+                                          (compute-label-linear [w v] :edge edge->faces)))))
 
 (defn longest-path-linear [graph]
-  (let [[edges faces] (preprocess-tree graph)
-        ]
-    (first (compute-label-linear (:root graph) :edge edges faces))))
+  (first (compute-label-linear (:root graph) :edge (preprocess-tree graph))))
 
 ;(pprint (preprocess-tree test-graph))
 ;(println (longest-path-linear test-graph))
