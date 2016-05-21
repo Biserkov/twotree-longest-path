@@ -67,6 +67,7 @@
         l6 (max b5 b6 (+ b2 a6))
         l7 (max (+ a4 b6)
                 (+ a4 b5)
+                (+ a4 b2)
                 (+ a2 b6)
                 (+ a3 b6)
                 (+ a2 b7)
@@ -292,107 +293,140 @@
     (loop [data (transient (:data tree))
            degrees (transient (compute-degrees tree))
            unprocessed (deg2 degrees)
-           EdgeNodes {}
+           EdgeNodes {[x y] #_{x y} (set/intersection (data x) (data y))}
            FaceNodes (transient {})]
       (if (empty? unprocessed)
         [EdgeNodes (persistent! FaceNodes)]
         (let [vertex (first unprocessed)
-              edge (get data vertex)
-              u (first edge)
-              v (second edge)
-              degU (dec (get degrees u))
-              degV (dec (get degrees v))
-              addU (and (not= u x) (not= u y) (= 2 degU))
-              addV (and (not= v x) (not= v y) (= 2 degV))
-              rst (pop unprocessed)
-              new-unprocessed (cond (and addU addV) (conj (conj rst v) u)
-                                    addU (conj rst u)
-                                    addV (conj rst v)
-                                    :else rst)]
-          ;(println vertex (vec unprocessed))
-          (recur (assoc! data
-                         u (disj (data u) vertex)
-                         v (disj (data v) vertex))
-                 (assoc! degrees
-                         u degU
-                         v degV)
-                 new-unprocessed
-                 (assoc EdgeNodes edge (conj (EdgeNodes edge) vertex))
-                 (assoc! FaceNodes (set [vertex u v]) (vector #{vertex v} #{vertex u}))))))))
+              rst (pop unprocessed)]
+          ;(pprint EdgeNodes FaceNodes)
+          (if (or (> 2 (get degrees vertex))
+                  (= vertex x)
+                  (= vertex y))
+            (recur data degrees rst EdgeNodes FaceNodes)
+            (let [edge (get data vertex)
+                  u (first edge)                        ;first
+                  v (second edge)                        ;second
+                  degU (dec (get degrees u))
+                  degV (dec (get degrees v))
+                  addU (and (not= u x) (not= u y) (= 2 degU))
+                  addV (and (not= v x) (not= v y) (= 2 degV))
+                  new-unprocessed (cond (and addU addV) (conj (conj rst v) u)
+                                        addU (conj rst u)
+                                        addV (conj rst v)
+                                        :else rst)]
+              ;(println vertex (vec unprocessed))
+              (recur (assoc! data
+                           u (disj (data u) vertex)
+                           v (disj (data v) vertex))
+                   (assoc! degrees
+                           u degU
+                           v degV)
+                   new-unprocessed
+                   (if (= degU 1)
+                     EdgeNodes
+                     (update EdgeNodes [u v]                ;edge
+                             conj vertex))
+                   (assoc! FaceNodes [u v vertex] 0 #_(vector [u vertex] [vertex v]
+                                                          ;#{vertex u}
+                                                          ;#{vertex v}
+                                                          ))))))))))
 
 
 
 (defn compute-label-linear [node type edge->faces face->edges]
   ;(println node type)
-  (cond                                                     ;(nil? node) [1 1 0 0 0 0 0]
-        ;(and  (= type :edge))
-        (and (nil? node) (= type :face)) [1 1 1 0 1 0 0]
-        (= type :edge) (combine-on-edge (let [edge (set node)]
-                                          (map (fn [a]
-                                                 (compute-label-linear (conj edge a) :face edge->faces face->edges))
-                                               (get edge->faces edge))))
-        (= type :face) (let [[H1 H2] (get face->edges node)
+  (cond
+        (= type :edge) (let [                               ;edge (set node)
+                             folios (or
+                                      (get edge->faces node)
+                                      (get edge->faces (reverse node))
+                                      )]
+                         (println "faces" node folios)
+                         (if folios
+                           (combine-on-edge (map (fn [a]
+                                                   (compute-label-linear (conj node a) :face edge->faces face->edges))
+                                                 folios))
+                           [1 1 0 0 0 0 0]
+                           ))
+        (= type :face) (let [[u v w] node
+                             H1 [u w]
+                             H2 [w v]
+                             ;(get face->edges (sort node))
                              ;c1 (count (get edge->faces H1))
                              ;c2 (count (get edge->faces H2))
                              ]
+                         (println "edges" node H1 H2)
                          ;(println c1 c2)
                          (combine-on-face (compute-label-linear H1 :edge edge->faces face->edges)
                                           (compute-label-linear H2 :edge edge->faces face->edges)))))
 
 (defn longest-path-linear [graph]
-  (let [[edges faces] (preprocess-tree graph)]
+  (let [[edges faces] (preprocess-tree graph)
+        ]
     (first (compute-label-linear (:root graph) :edge edges faces))))
 
-(def wtf {:root [0 1],
-          :data (into {} (map (fn [[k v]] [k (set/int-set v)])
-                              {0 #{1 2 3 6},
-                               1 #{0 2 4 5 7 8},
-                               2 #{0 1 3 4 5 6},
-                               3 #{0 2},
-                               4 #{1 2 7 8},
-                               5 #{1 2 },
-                               6 #{0 2},
-                               7 #{1 4},
-                               8 #{1 4},
-                               }))})
+;(pprint (preprocess-tree test-graph))
+;(println (longest-path-linear test-graph))
 
-(let [[a b] (preprocess-tree wtf)]
-  (println "Edges")
-  (pprint a)
-  (println "Faces")
-  (pprint b)
-  (println (longest-path wtf) (longest-path-linear wtf))
-  )
+;(pprint (preprocess-tree test-graph3))
 
-;(println (longest-path test-graph3))
-;(println (combine-on-edge [[1 1 0 0 0 0 0] [1 1 0 0 0 0 0]]))
+(deftype FaceNode [childA childB])
+(deftype EdgeNode [id children])
+
+#_(defn prep [data]
+  (let [edges ]))
+
+#_(println (prep {0 #{1 2 3}
+                1 #{0 2 3}
+                2 #{0 1}
+                3 #{0 1}}))
+
+
+;(println (FaceNode. 1 2))
+;(println (->FaceNode 1 2))
 
 (def read-time (fn [n]
                  ;(println n)
                  (let [
-                       t (Generate2tree n)
+                       ;t (Generate2tree n)
                        ;s (str (:data t))
-                       ;t-str (clojure.string/replace (str "#m[" (subs s 1 (dec (.length s))) "]") "#{" "#s #{")
-                       ;tree
-                       #_(->> (str "g" n ".txt")
-                            slurp
-                            read-2tree
-                            (#(hash-map :root [0 1] :data (doall %))))
+                       ; t-str (clojure.string/replace (str "#m[" (subs s 1 (dec (.length s))) "]") "#{" "#s #{")
+                       tree (->> (str "g" n ".txt")
+                              slurp
+                              read-2tree
+                              (#(hash-map :root [0 1] :data (doall %))))
                        ; degrees (transient (compute-degrees tree))
                        ]
                    ;(spit (str "g" n ".txt") t-str)
-                   ;(println (time (longest-path b)))
+                   ;(println (time (longest-path tree)))
+                   (println (longest-path tree))
+                   (println (longest-path-linear tree))
+                   (pprint (preprocess-tree tree))
                    ;(println (new java.util.Date))
-                   (let [a (longest-path-linear t)
-                         b (longest-path t)]
-                     (when (not= a b)
-                     (pprint [a b t])))
-                   ;(bench (compute-degrees b))
                    ;(bench (preprocess-tree tree))
-                   ;(time (deg2 (compute-degrees tree)))
                    )))
-
-;(read-time 100)
-;(doall (take 11 (map read-time (iterate #(* 2 %) 100))))
+(read-time 7)
+(comment
+  (read-time 100)
+(read-time 200)
+(read-time 400)
+(read-time 800)
+(read-time 1600)
+(read-time 3200)
+(read-time 6400)
+(read-time 12800)
+(read-time 25600)
+(read-time 51200)
+(read-time 102400)
+(read-time 204800)
+(read-time 409600)
+(read-time 819200)
+(read-time 1638400)
+(read-time 3276800)
+)
+;(doall (take 16 (map read-time (iterate #(* 2 %) 100))))
 ;(doall (take 11 (map read-time (iterate #(+ 2 %) 10))))
 
+;(get (first (preprocess-tree test-graph)) #{2 3})
+;(print (class (get (update {} 5 conj 1) 5)))
