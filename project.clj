@@ -3,10 +3,10 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha1"]
                  [org.clojure/data.int-map "0.2.2"]]
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
-                                  [com.gfredericks/test.chuck "0.2.1"]
-                                  [criterium "0.4.3"]
+                                  [com.gfredericks/test.chuck "0.2.6"]
+                                  [criterium "0.4.4"]
                                   ]}}
   :main twotree.core)
