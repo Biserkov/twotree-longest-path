@@ -233,15 +233,19 @@
 
 
 (defn preprocess-tree [tree]
-  (let [[x y] (:root tree)]
+  (let [[x y] (:root tree)
+        [wtf1 wtf2] (compute-degrees2 tree)]
     (loop [data (transient (:data tree))
-           degrees (transient (compute-degrees tree))
-           unprocessed (deg2 degrees)
+           degrees wtf1
+           unprocessed wtf2
+           ;degrees (compute-degrees2 tree)
+           ;unprocessed (deg2 degrees)
+
            EdgeNodes (transient {[x y] (set/intersection (data x) (data y))})]
-      (if (empty? unprocessed)
+      (if (get unprocessed 0)
         (persistent! EdgeNodes)
-        (let [vertex (first unprocessed)
-              rst (pop unprocessed)]
+        (let [vertex (nth unprocessed 0)
+              rst (pop! unprocessed)]
           (if (or (> 2 (get degrees vertex))
                   (= vertex x)
                   (= vertex y))
@@ -252,19 +256,17 @@
                   degU (dec (get degrees u))
                   degV (dec (get degrees v))
                   addU (and (not= u x) (not= u y) (= 2 degU))
-                  addV (and (not= v x) (not= v y) (= 2 degV))
-                  new-unprocessed (cond (and addU addV) (conj (conj rst v) u)
-                                        addU (conj rst u)
-                                        addV (conj rst v)
-                                        :else rst)]
-              ;(println vertex (vec unprocessed))
+                  addV (and (not= v x) (not= v y) (= 2 degV))]
               (recur (assoc! data
                            u (disj (data u) vertex)
                            v (disj (data v) vertex))
                    (assoc! degrees
                            u degU
                            v degV)
-                   new-unprocessed
+                   (cond (and addU addV) (conj! (conj! rst v) u)
+                         addU (conj! rst u)
+                         addV (conj! rst v)
+                         :else rst)
                    (if (= degU 1)
                      EdgeNodes
                      (assoc! EdgeNodes [u v] (conj (get EdgeNodes [u v]) vertex)))))))))))
