@@ -4,45 +4,6 @@
 (use 'clojure.pprint)
 (defrecord twotree [root data])
 
-(def test-graph {:root [1 2]
-                 :data {1 (set/int-set #{2 3 4})
-                        2 (set/int-set #{1 3 6 7})
-                        3 (set/int-set #{1 2 4 5 6 7})
-                        4 (set/int-set #{1 3 5})
-                        5 (set/int-set #{3 4})
-                        6 (set/int-set #{2 3})
-                        7 (set/int-set #{2 3})
-                        }})
-
-
-(def test-graph2 {:root [1 2]
-                  :data {1 (set/int-set #{2 3 4 5})
-                         2 (set/int-set #{1 3 4 6})
-                         3 (set/int-set #{1 2 5})
-                         4 (set/int-set #{1 2 6 7})
-                         5 (set/int-set #{1 3})
-                         6 (set/int-set #{2 4 7})
-                         7 (set/int-set #{4 6})
-                         }})
-
-(def test-graph3 {:root [1 2]
-                  :data {1 (set/int-set #{2 3 4})
-                         2 (set/int-set #{1 3 6 7})
-                         3 (set/int-set #{1 2 4 5 6 7})
-                         4 (set/int-set #{1 3 5 8})
-                         5 (set/int-set #{3 4 8})
-                         6 (set/int-set #{2 3})
-                         7 (set/int-set #{2 3})
-                         8 (set/int-set #{4 5})
-
-                         }})
-
-(defn edges [graph]
-  (doall (mapcat (fn [[k neib]]
-                   (map (fn [i] (vector k i))
-                        (remove (fn [i] (< i k)) neib)))
-                 (:data graph))))
-
 
 (defmacro positive [f x]
   `(if (< 0 ~x)
@@ -234,57 +195,42 @@
                 G     :data}]
   (second (set/intersection (G u) (G v))))
 
-(defn compute-label [{:keys [data root] :as graph} & complex]
+(defn compute-label-direct [{:keys [data root] :as graph} & complex]
   ;(println (count data) complex)
   (cond (= (data (first root)) (set/int-set (rest root))) [1 1 0 0 0 0 0]
         complex (->> (split-edge graph)
-                     (map compute-label)
+                     (map compute-label-direct)
                      combine-on-edge)
         :simple (let [[H1 H2] (split-face graph)]
-                  (combine-on-face (compute-label H1 (simple? H1))
-                                   (compute-label H2 (simple? H2))))))
+                  (combine-on-face (compute-label-direct H1 (simple? H1))
+                                   (compute-label-direct H2 (simple? H2))))))
 
-(defn longest-path [graph]
-  (first (compute-label graph :complex)))
-
-(defn -main []
-  (println (longest-path test-graph)))
+(defn longest-path-direct [graph]
+  (first (compute-label-direct graph :complex)))
 
 
-(defn Generate2tree [n]
-  {:pre [(> n 1)]}
-  (loop [acc (transient {0 (set/int-set [1]), 1 (set/int-set [0])})
-         i 2]
-    (if (= i n)
-      {:root [0 1], :data (persistent! acc)}
-      (let [k (int (rand i))
-            Nk (acc k)
-            l (rand-nth (seq Nk))]
-        (recur (assoc! acc
-                       i (set/int-set [k l])
-                       k (conj Nk i)
-                       l (conj (acc l) i))
-               (inc i))))))
-
-(use 'criterium.core)
-;(println (longest-path test-graph))
-;(println (longest-path test-graph2))
 
 (require 'clojure.edn)
 (defn read-2tree [a-str]
   (clojure.edn/read-string {:readers {'s set/int-set
                                       'm #(apply set/int-map %)}} a-str))
 
-(defn compute-degrees [tree]
-  (into (set/int-map)
-        (map (fn [[a b]] (vector a (count b))) (:data tree))))
 
-(defn deg2 [degrees]
-  (->> degrees
-       (filter (fn [[_ b]] (= b 2)))
-       (map first)
-       (into                                                ;[]
-         clojure.lang.PersistentQueue/EMPTY)))
+
+(defn compute-degrees2 [tree]
+  (loop [result (transient (set/int-map))
+         d-seq (:data tree)
+         deg2 (transient [])                                              ;clojure.lang.PersistentQueue/EMPTY
+         ]
+    (if (empty? d-seq)
+      [result deg2]
+      (let [[a b] (first d-seq)
+            c (count b)]
+        (recur (assoc! result a c)
+               (rest d-seq)
+               (if (= c 2) (conj! deg2 a) deg2))))))
+
+
 
 (defn preprocess-tree [tree]
   (let [[x y] (:root tree)]
@@ -323,85 +269,22 @@
                      EdgeNodes
                      (assoc! EdgeNodes [u v] (conj (get EdgeNodes [u v]) vertex)))))))))))
 
-(defn compute-label-linear [node type edge->faces]
-  ;(println node type)
-  (cond
-        (= type :edge) (let [folios (or (get edge->faces node)
+(defn compute-label-linear [node edge edge->faces]
+  (if edge
+    (let [folios (or (get edge->faces node)
                                         (get edge->faces (reverse node)))]
-                         ;(println "faces" node folios)
                          (if folios
                            (combine-on-edge (map (fn [a]
-                                                   (compute-label-linear (conj node a) :face edge->faces))
+                                                   (compute-label-linear (conj node a) false edge->faces))
                                                  folios))
                            [1 1 0 0 0 0 0]))
-        (= type :face) (let [[u v w] node]
-                         (combine-on-face (compute-label-linear [u w] :edge edge->faces)
-                                          (compute-label-linear [w v] :edge edge->faces)))))
+        (let [[u v w] node]
+                         (combine-on-face (compute-label-linear [u w] true edge->faces)
+                                          (compute-label-linear [w v] true edge->faces)))))
 
 (defn longest-path-linear [graph]
-  (first (compute-label-linear (:root graph) :edge (preprocess-tree graph))))
+  (first (compute-label-linear (:root graph) true (preprocess-tree graph))))
 
-;(pprint (preprocess-tree test-graph))
-;(println (longest-path-linear test-graph))
-
-;(pprint (preprocess-tree test-graph3))
-
-(deftype FaceNode [childA childB])
-(deftype EdgeNode [id children])
-
-#_(defn prep [data]
-  (let [edges ]))
-
-#_(println (prep {0 #{1 2 3}
-                1 #{0 2 3}
-                2 #{0 1}
-                3 #{0 1}}))
-
-
-;(println (FaceNode. 1 2))
-;(println (->FaceNode 1 2))
-
-(def read-time (fn [n]
-                 ;(println n)
-                 (let [
-                       ;t (Generate2tree n)
-                       ;s (str (:data t))
-                       ; t-str (clojure.string/replace (str "#m[" (subs s 1 (dec (.length s))) "]") "#{" "#s #{")
-                       tree (->> (str "g" n ".txt")
-                              slurp
-                              read-2tree
-                              (#(hash-map :root [0 1] :data (doall %))))
-                       ; degrees (transient (compute-degrees tree))
-                       ]
-                   ;(spit (str "g" n ".txt") t-str)
-                   ;(println (time (longest-path tree)))
-                   (println (longest-path tree))
-                   (println (longest-path-linear tree))
-                   (pprint (preprocess-tree tree))
-                   ;(println (new java.util.Date))
-                   ;(bench (preprocess-tree tree))
-                   )))
-(read-time 7)
-(comment
-  (read-time 100)
-(read-time 200)
-(read-time 400)
-(read-time 800)
-(read-time 1600)
-(read-time 3200)
-(read-time 6400)
-(read-time 12800)
-(read-time 25600)
-(read-time 51200)
-(read-time 102400)
-(read-time 204800)
-(read-time 409600)
-(read-time 819200)
-(read-time 1638400)
-(read-time 3276800)
-)
-;(doall (take 16 (map read-time (iterate #(* 2 %) 100))))
-;(doall (take 11 (map read-time (iterate #(+ 2 %) 10))))
-
-;(get (first (preprocess-tree test-graph)) #{2 3})
-;(print (class (get (update {} 5 conj 1) 5)))
+(defn -main []
+  ;(println (longest-path test-graph))
+  )
