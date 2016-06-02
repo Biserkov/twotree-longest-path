@@ -39,54 +39,7 @@
 
 
 
-(defn subgraph2 [a s r u Gu v Gv]
-  (loop [r1 r
-         keysNewG (set/int-set [s])]
-    (if (seq r1)
-      (let [f (first r1)
-            Nf (get a f)]
-        (recur (set/union (disj r1 f)
-                          (set/difference Nf
-                                          keysNewG))
-               (conj keysNewG f)))
-      {:root [u v]
-       :data (assoc a u (set/intersection keysNewG Gu)
-                      v (set/intersection keysNewG Gv))})))
 
-(defn split-edge [graph]
-  ;(println "edge" (:root graph))
-  (let [[u v] (:root graph)
-        G (:data graph)
-        components (set/intersection (G u) (G v))
-        G-e (assoc G u (set/int-set)
-                     v (set/int-set))]
-    (map #(subgraph2 G-e %1 (G %1) u (G u) v (G v)) components)))
-
-(defn subgraph [a s r]
-  (loop [r1 r
-         keysNewG (set/int-set [s])]
-    (if (seq r1)
-      (let [f (first r1)
-            Nf (get a f)]
-        (recur (set/union (disj r1 f)
-                          (set/difference Nf
-                                          keysNewG))
-               (conj keysNewG f)))
-      keysNewG)))
-
-(defn split-face [{[u v] :root
-                   G     :data}]
-  (let [Gu (G u)
-        Gv (G v)
-        w (first (set/intersection Gu Gv))
-        Gw (G w)
-        G-e (assoc G u (disj Gu v)
-                     v (disj Gv u)
-                     w (set/int-set))
-        keysNewG (subgraph (dissoc G-e v) u (G-e u))]
-    ;(println "face" [u v w])
-    (vector {:root [u w] :data (assoc (dissoc G-e v) w (set/intersection Gw keysNewG))}
-            {:root [w v] :data (assoc (dissoc G-e u) w (set/difference Gw keysNewG))})))
 
 (defn max2 [a k]
   (loop [m 0 s 0 idx 0 i 0]
@@ -191,6 +144,55 @@
                       0))]
         [l1 l2 l3 l4 l5 l6 l7]))))
 
+(defn subgraph2 [a s r u Gu v Gv]
+  (loop [r1 r
+         keysNewG (set/int-set [s])]
+    (if (seq r1)
+      (let [f (first r1)
+            Nf (get a f)]
+        (recur (set/union (disj r1 f)
+                          (set/difference Nf
+                                          keysNewG))
+               (conj keysNewG f)))
+      {:root [u v]
+       :data (assoc a u (set/intersection keysNewG Gu)
+                      v (set/intersection keysNewG Gv))})))
+
+(defn split-edge [graph]
+  ;(println "edge" (:root graph))
+  (let [[u v] (:root graph)
+        G (:data graph)
+        components (set/intersection (G u) (G v))
+        G-e (assoc G u (set/int-set)
+                     v (set/int-set))]
+    (map #(subgraph2 G-e %1 (G %1) u (G u) v (G v)) components)))
+
+(defn subgraph [a s r]
+  (loop [r1 r
+         keysNewG (set/int-set [s])]
+    (if (seq r1)
+      (let [f (first r1)
+            Nf (get a f)]
+        (recur (set/union (disj r1 f)
+                          (set/difference Nf
+                                          keysNewG))
+               (conj keysNewG f)))
+      keysNewG)))
+
+(defn split-face [{[u v] :root
+                   G     :data}]
+  (let [Gu (G u)
+        Gv (G v)
+        w (first (set/intersection Gu Gv))
+        Gw (G w)
+        G-e (assoc G u (disj Gu v)
+                     v (disj Gv u)
+                     w (set/int-set))
+        keysNewG (subgraph (dissoc G-e v) u (G-e u))]
+    ;(println "face" [u v w])
+    (vector {:root [u w] :data (assoc (dissoc G-e v) w (set/intersection Gw keysNewG))}
+            {:root [w v] :data (assoc (dissoc G-e u) w (set/difference Gw keysNewG))})))
+
 (defn simple? [{[u v] :root
                 G     :data}]
   (second (set/intersection (G u) (G v))))
@@ -210,10 +212,7 @@
 
 
 
-(require 'clojure.edn)
-(defn read-2tree [a-str]
-  (clojure.edn/read-string {:readers {'s set/int-set
-                                      'm #(apply set/int-map %)}} a-str))
+
 
 
 
@@ -281,6 +280,11 @@
 
 (defn longest-path-linear [graph]
   (first (compute-label-linear (:root graph) true (preprocess-tree graph))))
+
+(require 'clojure.edn)
+(defn read-2tree [a-str]
+  (clojure.edn/read-string {:readers {'s set/int-set
+                                      'm #(apply set/int-map %)}} a-str))
 
 (defn -main []
   ;(println (longest-path test-graph))
