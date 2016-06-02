@@ -217,10 +217,10 @@
 
 
 
-(defn compute-degrees2 [tree]
+(defn compute-degrees [tree]
   (loop [result (transient (set/int-map))
          d-seq (:data tree)
-         deg2 (transient [])                                              ;clojure.lang.PersistentQueue/EMPTY
+         deg2 (list)
          ]
     (if (empty? d-seq)
       [result deg2]
@@ -228,24 +228,19 @@
             c (count b)]
         (recur (assoc! result a c)
                (rest d-seq)
-               (if (= c 2) (conj! deg2 a) deg2))))))
-
-
+               (if (= c 2) (conj deg2 a) deg2))))))
 
 (defn preprocess-tree [tree]
   (let [[x y] (:root tree)
-        [wtf1 wtf2] (compute-degrees2 tree)]
+        [wtf1 wtf2] (compute-degrees tree)]
     (loop [data (transient (:data tree))
            degrees wtf1
            unprocessed wtf2
-           ;degrees (compute-degrees2 tree)
-           ;unprocessed (deg2 degrees)
-
            EdgeNodes (transient {[x y] (set/intersection (data x) (data y))})]
-      (if (get unprocessed 0)
+      (if (empty? unprocessed)
         (persistent! EdgeNodes)
-        (let [vertex (nth unprocessed 0)
-              rst (pop! unprocessed)]
+        (let [vertex (first unprocessed)
+              rst (pop unprocessed)]
           (if (or (> 2 (get degrees vertex))
                   (= vertex x)
                   (= vertex y))
@@ -263,9 +258,9 @@
                    (assoc! degrees
                            u degU
                            v degV)
-                   (cond (and addU addV) (conj! (conj! rst v) u)
-                         addU (conj! rst u)
-                         addV (conj! rst v)
+                   (cond (and addU addV) (conj rst u v )
+                         addU (conj rst u)
+                         addV (conj rst v)
                          :else rst)
                    (if (= degU 1)
                      EdgeNodes
