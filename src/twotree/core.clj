@@ -231,7 +231,9 @@
     (loop [data (transient (:data tree))
            degrees wtf1
            unprocessed wtf2
-           EdgeNodes (transient {[x y] (set/intersection (data x) (data y))})]
+           EdgeNodes (transient {
+                                 [x y] (transient (set/intersection (data x) (data y)))
+                                 })]
       (if (empty? unprocessed)
         (persistent! EdgeNodes)
         (let [vertex (first unprocessed)
@@ -259,7 +261,7 @@
                          :else rst)
                    (if (= degU 1)
                      EdgeNodes
-                     (assoc! EdgeNodes [u v] (conj (get EdgeNodes [u v]) vertex)))))))))))
+                     (assoc! EdgeNodes [u v] (conj! (get EdgeNodes [u v] (transient [])) vertex)))))))))))
 
 (defn compute-label-linear [node edge edge->faces]
   (if edge
@@ -268,7 +270,7 @@
                          (if folios
                            (combine-on-edge (map (fn [a]
                                                    (compute-label-linear (conj node a) false edge->faces))
-                                                 folios))
+                                                 (persistent! folios)))
                            [1 1 0 0 0 0 0]))
         (let [[u v w] node]
                          (combine-on-face (compute-label-linear [u w] true edge->faces)
