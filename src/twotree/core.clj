@@ -37,10 +37,6 @@
                                                  (max b3 b4)))]
     [l1 l2 l3 l4 l5 l6 l7]))
 
-
-
-
-
 (defn max2 [a k]
   (loop [m 0 s 0 idx 0 i 0]
     (if (= i k)
@@ -218,7 +214,7 @@
 
 (defn compute-degrees [tree]
   (loop [result (transient (set/int-map))
-         d-seq (:data tree)
+         d-seq tree
          deg2 (list)
          ]
     (if (empty? d-seq)
@@ -231,7 +227,7 @@
 
 (defn preprocess-tree [tree]
   (let [[x y] (:root tree)
-        [wtf1 wtf2] (compute-degrees tree)]
+        [wtf1 wtf2] (compute-degrees (:data tree))]
     (loop [data (transient (:data tree))
            degrees wtf1
            unprocessed wtf2
@@ -268,7 +264,7 @@
 (defn compute-label-linear [node edge edge->faces]
   (if edge
     (let [folios (or (get edge->faces node)
-                                        (get edge->faces (reverse node)))]
+                     (get edge->faces (reverse node)))]
                          (if folios
                            (combine-on-edge (map (fn [a]
                                                    (compute-label-linear (conj node a) false edge->faces))
