@@ -232,7 +232,7 @@
            [degrees unprocessed] (compute-degrees (:data tree))
            EdgeNodes (transient {[x y] (transient (set/intersection (data x) (data y)))})]
       (if (empty? unprocessed)
-        (persistent! EdgeNodes)
+        EdgeNodes
         (let [vertex (first unprocessed)
               rst (pop unprocessed)]
           (if (or (> 2 (get degrees vertex))
