@@ -217,8 +217,7 @@
 (defn compute-degrees [tree]
   (loop [result (transient (m/int-map))
          d-seq tree
-         deg2 (list)
-         ]
+         deg2 (list)]
     (if (empty? d-seq)
       [result deg2]
       (let [[a b] (first d-seq)
@@ -233,9 +232,7 @@
     (loop [data (transient (:data tree))
            degrees wtf1
            unprocessed wtf2
-           EdgeNodes (transient {
-                                 [x y] (transient (set/intersection (data x) (data y)))
-                                 })]
+           EdgeNodes (transient {[x y] (transient (set/intersection (data x) (data y)))})]
       (if (empty? unprocessed)
         (persistent! EdgeNodes)
         (let [vertex (first unprocessed)
