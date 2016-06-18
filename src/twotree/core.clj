@@ -1,6 +1,8 @@
 (ns twotree.core
   (:require [clojure.data.int-map :as set]))
 
+(alias 'm 'clojure.data.int-map)
+
 (use 'clojure.pprint)
 (defrecord twotree [root data])
 
@@ -213,7 +215,7 @@
 
 
 (defn compute-degrees [tree]
-  (loop [result (transient (set/int-map))
+  (loop [result (transient (m/int-map))
          d-seq tree
          deg2 (list)
          ]
@@ -282,7 +284,7 @@
 (require 'clojure.edn)
 (defn read-2tree [a-str]
   (clojure.edn/read-string {:readers {'s set/int-set
-                                      'm #(apply set/int-map %)}} a-str))
+                                      'm #(apply m/int-map %)}} a-str))
 
 (defn -main []
   ;(println (longest-path test-graph))
