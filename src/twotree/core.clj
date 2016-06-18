@@ -227,11 +227,9 @@
                (if (= c 2) (conj deg2 a) deg2))))))
 
 (defn preprocess-tree [tree]
-  (let [[x y] (:root tree)
-        [wtf1 wtf2] (compute-degrees (:data tree))]
+  (let [[x y] (:root tree)]
     (loop [data (transient (:data tree))
-           degrees wtf1
-           unprocessed wtf2
+           [degrees unprocessed] (compute-degrees (:data tree))
            EdgeNodes (transient {[x y] (transient (set/intersection (data x) (data y)))})]
       (if (empty? unprocessed)
         (persistent! EdgeNodes)
@@ -240,7 +238,7 @@
           (if (or (> 2 (get degrees vertex))
                   (= vertex x)
                   (= vertex y))
-            (recur data degrees rst EdgeNodes)
+            (recur data [degrees rst] EdgeNodes)
             (let [edge (get data vertex)
                   u (first edge)
                   v (second edge)
@@ -251,13 +249,13 @@
               (recur (assoc! data
                              u (disj (data u) vertex)
                              v (disj (data v) vertex))
-                     (assoc! degrees
+                     [(assoc! degrees
                              u degU
                              v degV)
                      (cond (and addU addV) (conj rst u v)
                            addU (conj rst u)
                            addV (conj rst v)
-                           :else rst)
+                           :else rst)]
                      (if (= degU 1)
                        EdgeNodes
                        (assoc! EdgeNodes [u v] (conj! (get EdgeNodes [u v] (transient [])) vertex)))))))))))
