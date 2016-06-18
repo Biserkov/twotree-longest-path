@@ -250,31 +250,31 @@
                   addU (and (not= u x) (not= u y) (= 2 degU))
                   addV (and (not= v x) (not= v y) (= 2 degV))]
               (recur (assoc! data
-                           u (disj (data u) vertex)
-                           v (disj (data v) vertex))
-                   (assoc! degrees
-                           u degU
-                           v degV)
-                   (cond (and addU addV) (conj rst u v )
-                         addU (conj rst u)
-                         addV (conj rst v)
-                         :else rst)
-                   (if (= degU 1)
-                     EdgeNodes
-                     (assoc! EdgeNodes [u v] (conj! (get EdgeNodes [u v] (transient [])) vertex)))))))))))
+                             u (disj (data u) vertex)
+                             v (disj (data v) vertex))
+                     (assoc! degrees
+                             u degU
+                             v degV)
+                     (cond (and addU addV) (conj rst u v)
+                           addU (conj rst u)
+                           addV (conj rst v)
+                           :else rst)
+                     (if (= degU 1)
+                       EdgeNodes
+                       (assoc! EdgeNodes [u v] (conj! (get EdgeNodes [u v] (transient [])) vertex)))))))))))
 
 (defn compute-label-linear [node edge edge->faces]
   (if edge
     (let [folios (or (get edge->faces node)
                      (get edge->faces (reverse node)))]
-                         (if folios
-                           (combine-on-edge (map (fn [a]
-                                                   (compute-label-linear (conj node a) false edge->faces))
-                                                 (persistent! folios)))
-                           [1 1 0 0 0 0 0]))
-        (let [[u v w] node]
-                         (combine-on-face (compute-label-linear [u w] true edge->faces)
-                                          (compute-label-linear [w v] true edge->faces)))))
+      (if folios
+        (combine-on-edge (map (fn [a]
+                                (compute-label-linear (conj node a) false edge->faces))
+                              (persistent! folios)))
+        [1 1 0 0 0 0 0]))
+    (let [[u v w] node]
+      (combine-on-face (compute-label-linear [u w] true edge->faces)
+                       (compute-label-linear [w v] true edge->faces)))))
 
 (defn longest-path-linear [graph]
   (first (compute-label-linear (:root graph) true (preprocess-tree graph))))
