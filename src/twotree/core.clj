@@ -262,9 +262,12 @@
 
 (defn compute-label-linear [node edge? edge->faces]
   (if edge?
+    (let [[y x] node
+          folios (or (get edge->faces node)
+                     (get edge->faces [x y]))]
       (if folios
         (combine-on-edge (map (fn [a]
-                                (compute-label-linear (conj node a) false edge->faces))
+                                (compute-label-linear (conj node a) false (dissoc! edge->faces node [x y])))
                               (persistent! folios)))
         [1 1 0 0 0 0 0]))
     (let [[u v w] node]
