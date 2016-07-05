@@ -260,10 +260,8 @@
                        EdgeNodes
                        (assoc! EdgeNodes [u v] (conj! (get EdgeNodes [u v] (transient [])) vertex)))))))))))
 
-(defn compute-label-linear [node edge edge->faces]
-  (if edge
-    (let [folios (or (get edge->faces node)
-                     (get edge->faces (reverse node)))]
+(defn compute-label-linear [node edge? edge->faces]
+  (if edge?
       (if folios
         (combine-on-edge (map (fn [a]
                                 (compute-label-linear (conj node a) false edge->faces))
