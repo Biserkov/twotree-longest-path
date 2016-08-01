@@ -8,5 +8,6 @@
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
                                   [com.gfredericks/test.chuck "0.2.6"]
                                   [criterium "0.4.4"]
-                                  ]}}
+                                  ]}
+             :uberjar {:aot :all}}
   :main twotree.core)
