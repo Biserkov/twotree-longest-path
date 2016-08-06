@@ -1,34 +1,29 @@
 (ns twotree.core-test
   (:require [twotree.core :refer :all]
+    ;[twotree.benchmarks :refer :all]
+            [clojure.data.int-map :as set]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.properties :as prop']))
 
 
 (use 'clojure.pprint)
-#_(defspec proba 100
-         (prop'/for-all [n gen/s-pos-int :when (>= n 3)]
-                        (let [t (Generate2tree n)]
-                          (pprint t)
-                          (let [
-                                a (longest-path t)
-                                b (longest-path-linear t)]
-                            (= a b)))))
 
-(defn max2DistinctFolios [a b k]
+
+#_(defn max2DistinctFolios [a b k]
   (reduce max (for [i (range 0 k)
                     j (range 0 k)
                     :when (not= i j)]
                 (+ (nth a i) (nth b j)))))
 
-(defn max3DistinctFolios [a b c k]
+#_(defn max3DistinctFolios [a b c k]
   (reduce max (for [i (range 0 k)
                     j (range 0 k)
                     t (range 0 k)
                     :when (distinct? i j t)]
                 (+ (nth a i) (nth b j) (nth c t)))))
 
-(defspec max3-finds-max 1000
+(comment (defspec max3-finds-max 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 3)
                          v (gen/vector gen/pos-int k)]
                         (= (first (max3 v k))
@@ -104,4 +99,4 @@
 
 (defspec longest-path-is-not-crazy 1000
          (prop'/for-all [k gen/s-pos-int :when (> k 1)]
-                        (< 0 (longest-path (Generate2tree k)) k)))
+                        (< 0 (longest-path (Generate2tree k)) k))))

@@ -12,7 +12,7 @@
      ~f
      0))
 
-(defn combine-on-face [[a1 a2 a3 a4 a5 a6 a7]
+(defn cof [[a1 a2 a3 a4 a5 a6 a7]
                        [b1 b2 b3 b4 b5 b6 b7]]
   ;(println "cof" [a1 a2 a3 a4 a5 a6 a7] [b1 b2 b3 b4 b5 b6 b7])
   (let [l2 (+ a2 b2)
@@ -39,6 +39,8 @@
                                                  (max b3 b4)))]
     [l1 l2 l3 l4 l5 l6 l7]))
 
+(def combine-on-face (memoize cof))
+
 (defn max2 [a k]
   (loop [m 0 s 0 idx 0 i 0]
     (if (= i k)
@@ -47,6 +49,15 @@
         (if (> ai m)
           (recur ai m i (inc i))
           (recur m (max ai s) idx (inc i)))))))
+
+(defmacro max2-macro [a k]
+  `(loop [m# 0 s# 0 idx# 0 i# 0]
+    (if (= i# ~k)
+      [m# s# idx#]
+      (let [ai# (nth ~a i#)]
+        (if (> ai# m#)
+          (recur ai# m# i# (inc i#))
+          (recur m# (max ai# s#) idx# (inc i#)))))))
 
 (defn max3 [a k]
   (loop [m 0 s 0 t 0 idx 0 idy 0 i 0]
@@ -58,13 +69,21 @@
           (>= m ai s) (recur m ai s idx i (inc i))
           :else (recur m s (max ai t) idx idy (inc i)))))))
 
-(defn linear-max2DistinctFolios [a b k]
-  (let [[ma sa ia] (max2 a k)
-        [mb sb ib] (max2 b k)]
+(defn linear-max2DistinctFolios-non-macro [a b k]
+  (let [[ma sa ia] (max2-macro a k)
+        [mb sb ib] (max2-macro b k)]
     (if (not= ia ib)
       (+ ma mb)
       (max (+ ma sb)
            (+ sa mb)))))
+
+(defmacro linear-max2DistinctFolios [a b k]
+  `(let [[ma# sa# ia#] (max2-macro ~a ~k)
+        [mb# sb# ib#] (max2-macro ~b ~k)]
+    (if (not= ia# ib#)
+      (+ ma# mb#)
+      (max (+ ma# sb#)
+           (+ sa# mb#)))))
 
 (defn linear-max3DistinctFolios [a b c k]
   (let [[ma sa ta ia ja] (max3 a k)
@@ -115,7 +134,7 @@
               cb-blocker (if (= ja ic) ta sa)
               ia ma)))))
 
-(defn combine-on-edge [labels]
+(defn coe [labels]
   ;(println "coe" (apply str labels))
   (let [k (count labels)]
     (if (= k 1)
@@ -140,79 +159,10 @@
                     (if (>= k 3)
                       (linear-max3DistinctFolios a2 a4 a6 k)
                       0))]
+        ;(println "coe" (apply str labels))
         [l1 l2 l3 l4 l5 l6 l7]))))
 
-(defn subgraph2 [a s r u Gu v Gv]
-  (loop [r1 r
-         keysNewG (set/int-set [s])]
-    (if (seq r1)
-      (let [f (first r1)
-            Nf (get a f)]
-        (recur (set/union (disj r1 f)
-                          (set/difference Nf
-                                          keysNewG))
-               (conj keysNewG f)))
-      {:root [u v]
-       :data (assoc a u (set/intersection keysNewG Gu)
-                      v (set/intersection keysNewG Gv))})))
-
-(defn split-edge [graph]
-  ;(println "edge" (:root graph))
-  (let [[u v] (:root graph)
-        G (:data graph)
-        components (set/intersection (G u) (G v))
-        G-e (assoc G u (set/int-set)
-                     v (set/int-set))]
-    (map #(subgraph2 G-e %1 (G %1) u (G u) v (G v)) components)))
-
-(defn subgraph [a s r]
-  (loop [r1 r
-         keysNewG (set/int-set [s])]
-    (if (seq r1)
-      (let [f (first r1)
-            Nf (get a f)]
-        (recur (set/union (disj r1 f)
-                          (set/difference Nf
-                                          keysNewG))
-               (conj keysNewG f)))
-      keysNewG)))
-
-(defn split-face [{[u v] :root
-                   G     :data}]
-  (let [Gu (G u)
-        Gv (G v)
-        w (first (set/intersection Gu Gv))
-        Gw (G w)
-        G-e (assoc G u (disj Gu v)
-                     v (disj Gv u)
-                     w (set/int-set))
-        keysNewG (subgraph (dissoc G-e v) u (G-e u))]
-    ;(println "face" [u v w])
-    (vector {:root [u w] :data (assoc (dissoc G-e v) w (set/intersection Gw keysNewG))}
-            {:root [w v] :data (assoc (dissoc G-e u) w (set/difference Gw keysNewG))})))
-
-(defn simple? [{[u v] :root
-                G     :data}]
-  (second (set/intersection (G u) (G v))))
-
-(defn compute-label-direct [{:keys [data root] :as graph} & complex]
-  ;(println (count data) complex)
-  (cond (= (data (first root)) (set/int-set (rest root))) [1 1 0 0 0 0 0]
-        complex (->> (split-edge graph)
-                     (map compute-label-direct)
-                     combine-on-edge)
-        :simple (let [[H1 H2] (split-face graph)]
-                  (combine-on-face (compute-label-direct H1 (simple? H1))
-                                   (compute-label-direct H2 (simple? H2))))))
-
-(defn longest-path-direct [graph]
-  (first (compute-label-direct graph :complex)))
-
-
-
-
-
-
+(def combine-on-edge (memoize coe))
 
 (defn compute-degrees [tree]
   (loop [result (transient (m/int-map))
@@ -220,68 +170,46 @@
          deg2 (list)]
     (if (empty? d-seq)
       [result deg2]
-      (let [[a b] (first d-seq)
-            c (count b)]
-        (recur (assoc! result a c)
+      (let [[vertex neighbours] (first d-seq)
+            degree (count neighbours)]
+        (recur (assoc! result vertex degree)
                (rest d-seq)
-               (if (= c 2) (conj deg2 a) deg2))))))
+               (if (= degree 2) (conj deg2 vertex) deg2))))))
 
-(defn preprocess-tree [tree]
-  (let [[x y] (:root tree)]
-    (loop [data (transient (:data tree))
-           [degrees unprocessed] (compute-degrees (:data tree))
-           EdgeNodes (transient {[x y] (transient (set/intersection (data x) (data y)))})]
-      (if (empty? unprocessed)
-        EdgeNodes
-        (let [vertex (first unprocessed)
-              rst (pop unprocessed)]
-          (if (or (> 2 (get degrees vertex))
-                  (= vertex x)
-                  (= vertex y))
-            (recur data [degrees rst] EdgeNodes)
-            (let [edge (get data vertex)
-                  u (first edge)
-                  v (second edge)
-                  degU (dec (get degrees u))
-                  degV (dec (get degrees v))
-                  addU (and (not= u x) (not= u y) (= 2 degU))
-                  addV (and (not= v x) (not= v y) (= 2 degV))]
-              (recur (assoc! data
-                             u (disj (data u) vertex)
-                             v (disj (data v) vertex))
-                     [(assoc! degrees
-                             u degU
-                             v degV)
-                     (cond (and addU addV) (conj rst u v)
-                           addU (conj rst u)
-                           addV (conj rst v)
-                           :else rst)]
-                     (if (= degU 1)
-                       EdgeNodes
-                       (assoc! EdgeNodes [u v] (conj! (get EdgeNodes [u v] (transient [])) vertex)))))))))))
 
-(defn compute-label-linear [node edge? edge->faces]
-  (if edge?
-    (let [[y x] node
-          folios (or (get edge->faces node)
-                     (get edge->faces [x y]))]
-      (if folios
-        (combine-on-edge (map (fn [a]
-                                (compute-label-linear (conj node a) false (dissoc! edge->faces node [x y])))
-                              (persistent! folios)))
-        [1 1 0 0 0 0 0]))
-    (let [[u v w] node]
-      (combine-on-face (compute-label-linear [u w] true edge->faces)
-                       (compute-label-linear [w v] true edge->faces)))))
 
-(defn longest-path-linear [graph]
-  (first (compute-label-linear (:root graph) true (preprocess-tree graph))))
+
+
+
+
 
 (require 'clojure.edn)
 (defn read-2tree [a-str]
   (clojure.edn/read-string {:readers {'s set/int-set
                                       'm #(apply m/int-map %)}} a-str))
 
-(defn -main []
-  ;(println (longest-path test-graph))
+#_(defn write-2tree-to-file [t f]
+  (clojure.string/replace (str "#m[" (subs s 1 (dec (.length s))) "]") "#{" "#s #{")
   )
+
+
+#_(def read-time (fn [n]
+                 ;(println n)
+                 (let [
+                       ;t (Generate2tree n)
+                       ;s (str (:data t))
+
+                       tree (->> n
+                                 ;(str "g" n ".txt")
+                                 slurp
+                                 read-2tree
+                                 (#(hash-map :root [0 1] :data (doall %))))
+                       ;crazy (generate-crazy n)
+                       ]
+                   ;(spit (str "g" n ".txt") t-str)
+                   (time (longest-path-linear tree))
+                   ;(println n)
+                   ;(pprint (class (second (first (preprocess-tree tree)))))
+                   ;(println (new java.util.Date))
+                   )))
+
