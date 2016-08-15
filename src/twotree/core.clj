@@ -41,16 +41,7 @@
 
 (def combine-on-face (memoize cof))
 
-(defn max2 [a k]
-  (loop [m 0 s 0 idx 0 i 0]
-    (if (= i k)
-      [m s idx]
-      (let [ai (nth a i)]
-        (if (> ai m)
-          (recur ai m i (inc i))
-          (recur m (max ai s) idx (inc i)))))))
-
-(defmacro max2-macro [a k]
+(defmacro max2 [a k]
   `(loop [m# 0 s# 0 idx# 0 i# 0]
     (if (= i# ~k)
       [m# s# idx#]
@@ -69,17 +60,9 @@
           (>= m ai s) (recur m ai s idx i (inc i))
           :else (recur m s (max ai t) idx idy (inc i)))))))
 
-(defn linear-max2DistinctFolios-non-macro [a b k]
-  (let [[ma sa ia] (max2-macro a k)
-        [mb sb ib] (max2-macro b k)]
-    (if (not= ia ib)
-      (+ ma mb)
-      (max (+ ma sb)
-           (+ sa mb)))))
-
 (defmacro linear-max2DistinctFolios [a b k]
-  `(let [[ma# sa# ia#] (max2-macro ~a ~k)
-        [mb# sb# ib#] (max2-macro ~b ~k)]
+  `(let [[ma# sa# ia#] (max2 ~a ~k)
+        [mb# sb# ib#] (max2 ~b ~k)]
     (if (not= ia# ib#)
       (+ ma# mb#)
       (max (+ ma# sb#)
