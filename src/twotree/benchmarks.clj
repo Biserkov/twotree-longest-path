@@ -3,7 +3,7 @@
 
 (defn generate-random-2tree [n]
   {:pre [(> n 1)]}
-  (loop [acc (transient {0 (set/int-set [1]), 1 (set/int-set [0])})
+  (loop [acc (transient (set/int-map 0 (set/int-set [1]), 1 (set/int-set [0])))
          i 2]
     (if (= i n)
       {:root [0 1], :data (persistent! acc)}
@@ -18,7 +18,8 @@
 
 (defn generate-max-internal-edges-2tree [n]
   {:pre [(> n 1)]}
-  (loop [acc (transient {0 (set/int-set [1]), 1 (set/int-set [0])})
+  (loop [acc (transient (set/int-map 0 (set/int-set [1]),
+                                     1 (set/int-set [0])))
          i 2]
     (if (= i n)
       {:root [0 1], :data (persistent! acc)}
