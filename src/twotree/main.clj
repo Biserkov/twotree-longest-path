@@ -19,24 +19,3 @@
 ;(-main "../../../input/g102400.txt")
 ;(-main "20")
 
-
-
-
-
-  #_(def fail {:root [0 3], :data (read-2tree
-                                    "#m[
-                                   0 #s #{1 2 3 4},
-                                   1 #s #{0 2 3 4 5},
-                                   2 #s #{0 1 5 6 7},
-                                   3 #s #{0 1},
-                                   4 #s #{0 1},
-                                   5 #s #{1 2 6 7},
-                                   7 #s #{2 5}
-                                   6 #s #{2 5},
-                                   ]")})
-
-  #_(->> file
-         slurp
-         read-2tree
-         compute-degrees
-         (#(hash-map :root [0 1] :data (doall %))))

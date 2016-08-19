@@ -4,14 +4,7 @@
             [clojure.data.int-map :as m]))
 
 (defn hashCode [x y]
-  ; (println (+ x (bit-shift-left y 25)))
-  (+ x (bit-shift-left y 25))
-  )
-
-(defn hashDecode [n]
-  (let [y (bit-shift-right n 25)
-        x (- n (bit-shift-left y 25))]
-    [x y]))
+  (+ x (bit-shift-left y 25)))
 
 (defn preprocess-tree [tree]
   (let [[x y] (:root tree)]
@@ -47,24 +40,17 @@
                        EdgeNodes
                        (assoc! EdgeNodes (hashCode u v) (conj! (get EdgeNodes (hashCode u v) (transient [])) vertex)))))))))))
 
-;(print "wtf ")
-;(println *clojure-version*)
-
-
 (defn compute-label-linear [node edge? edge->faces]
-  ;(when edge? (println node "\t" (hashCode node) "\t" (hashCode (reverse node))))
   (if edge?
     (let [[y x] node
           folios (or (get edge->faces (hashCode y x))
                      (get edge->faces (hashCode x y)))]
-      ;(println folios)
       (if folios
         (combine-on-edge (map (fn [a]
                                 (compute-label-linear (conj node a) false edge->faces))
                               (persistent! folios)))
         [1 1 0 0 0 0 0]))
     (let [[u v w] node]
-      ;(println [u w] [w v])
       (combine-on-face (compute-label-linear [u w] true edge->faces)
                        (compute-label-linear [w v] true edge->faces)))))
 
