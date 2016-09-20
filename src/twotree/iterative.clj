@@ -6,7 +6,7 @@
      [a1# a2# a5# a6# a3# a4# a7#]))
 
 (defn longest-path-iterative [tree]
-  (loop [data (transient tree)
+  (loop [data tree
          [degrees unprocessed] (compute-degrees tree)
          EdgeLabels (transient {})]
     (let [vertex (first unprocessed)

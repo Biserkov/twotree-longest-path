@@ -8,7 +8,7 @@
 
 (defn preprocess-tree [tree]
   (let [[x y] (:root tree)]
-    (loop [data (transient (:data tree))
+    (loop [data (:data tree)
            [degrees unprocessed] (compute-degrees (:data tree))
            EdgeNodes (transient (m/int-map (hashCode x y) (transient (set/intersection (data x) (data y)))))]
       (if (empty? unprocessed)
