@@ -39,7 +39,16 @@
                                                  (max b3 b4)))]
     [l1 l2 l3 l4 l5 l6 l7]))
 
-(def combine-on-face (memoize cof))
+;(def combine-on-face (memoize cof))
+
+(def combine-on-face
+  (let [mem (atom {})]
+    (fn [a b]
+      (if-let [e (find @mem [a b])]
+        (val e)
+        (let [ret (cof a b)]
+          (swap! mem assoc [a b] ret)
+          ret)))))
 
 (defmacro max2 [a k]
   `(loop [m# 0 s# 0 idx# 0 i# 0]
@@ -144,7 +153,17 @@
         ;(println "coe" (apply str labels))
         [l1 l2 l3 l4 l5 l6 l7]))))
 
-(def combine-on-edge (memoize coe))
+;(def combine-on-edge (memoize coe))
+
+(def combine-on-edge
+  (let [mem (atom {})]
+    (fn [args]
+      (if-let [e (find @mem args)]
+        (val e)
+        (let [ret (coe args)]
+          (swap! mem assoc args ret)
+          ret)))))
+
 
 (defn compute-degrees [tree]
   (loop [result (transient (m/int-map))
