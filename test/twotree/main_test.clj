@@ -6,7 +6,7 @@
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.properties :as prop']))
 
-(def num_tests 10000)
+(def num_tests (int 1e4))
 
 (defspec random-2trees num_tests
          (prop'/for-all [n gen/s-pos-int]
@@ -32,5 +32,7 @@
                           (let [t (generate-max-internal-edges-2tree n)
                                 b (longest-path-linear t)
                                 c (longest-path-iterative (:data t))]
-                            (= b c))
+                            (and
+                              (= b c)
+                              (< 0 b n)))
                           true)))

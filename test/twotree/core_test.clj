@@ -97,6 +97,3 @@
                           (and (>= m (apply max v1))
                                (>= m (apply max v2))))))
 
-(defspec longest-path-is-not-crazy 1000
-         (prop'/for-all [k gen/s-pos-int :when (> k 1)]
-                        (< 0 (longest-path (Generate2tree k)) k))))
