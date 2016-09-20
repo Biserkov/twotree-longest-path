@@ -1,11 +1,5 @@
 (ns twotree.core
-  (:require [clojure.data.int-map :as set]))
-
-(alias 'm 'clojure.data.int-map)
-
-(use 'clojure.pprint)
-(defrecord twotree [root data])
-
+  (:require [clojure.data.int-map :as m]))
 
 (defmacro positive [f x]
   `(if (< 0 ~x)
@@ -13,7 +7,7 @@
      0))
 
 (defn cof [[a1 a2 a3 a4 a5 a6 a7]
-                       [b1 b2 b3 b4 b5 b6 b7]]
+           [b1 b2 b3 b4 b5 b6 b7]]
   ;(println "cof" [a1 a2 a3 a4 a5 a6 a7] [b1 b2 b3 b4 b5 b6 b7])
   (let [l2 (+ a2 b2)
         l3 (max (positive (inc b6) b6)
