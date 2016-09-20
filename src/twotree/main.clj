@@ -1,7 +1,9 @@
 (ns twotree.main
-  (:require [twotree.core :refer [read-2tree]]
-    ;[twotree.benchmarks :refer :all]
-            [twotree.iterative :refer [longest-path-iterative]])
+  (:require [twotree.iterative :refer [longest-path-iterative]]
+    [twotree.core :refer [read-2tree]]
+    [twotree.benchmarks :refer :all]
+    ;[clojure.data.fressian :refer :all]
+            )
   (:gen-class :main true))
 
 (use 'criterium.core)
@@ -10,12 +12,8 @@
   (println (.. (java.time.LocalDateTime/now) toLocalTime toString))
   (bench (->>
            file
-           slurp read-2tree
+           read-2tree
            ;(. Integer parseInt) generate-min-internal-edges-2tree :data
            ;(. Integer parseInt) generate-max-internal-edges-2tree :data
            longest-path-iterative))
   (println (.. (java.time.LocalDateTime/now) toLocalTime toString)))
-
-;(-main "../../../input/g102400.txt")
-;(-main "20")
-
