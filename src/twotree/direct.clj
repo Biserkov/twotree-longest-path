@@ -14,7 +14,7 @@
                (conj keysNewG f)))
       keysNewG)))
 
-(defn split-edge [graph]
+(defn split-root-edge [graph]
   ;(println "edge" (:root graph))
   (let [[u v] (:root graph)
         G (:data graph)
@@ -27,7 +27,7 @@
                            v (set/intersection keysNewG (G v)))})
          components)))
 
-(defn split-face [{[u v] :root
+(defn split-root-face [{[u v] :root
                    G     :data}]
   (let [Gu (G u)
         Gv (G v)
@@ -46,11 +46,11 @@
   (second (set/intersection (G u) (G v))))
 
 (defn compute-label-direct [{:keys [data root] :as graph} & complex]
-  (cond (= (data (first root)) (set/int-set (rest root))) [1 1 0 0 0 0 0]
-        complex (->> (split-edge graph)
+  (cond (= (data (first root)) (set/int-set (second root))) [1 1 0 0 0 0 0]
+        complex (->> (split-root-edge G)
                      (map compute-label-direct)
                      combine-on-edge)
-        :simple (let [[H1 H2] (split-face graph)]
+        :simple (let [[H1 H2] (split-root-face G)]
                   (combine-on-face (compute-label-direct H1 (simple? H1))
                                    (compute-label-direct H2 (simple? H2))))))
 

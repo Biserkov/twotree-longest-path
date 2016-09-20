@@ -6,8 +6,8 @@
      ~f
      0))
 
-(defn cof [[a1 a2 a3 a4 a5 a6 a7]
-           [b1 b2 b3 b4 b5 b6 b7]]
+(defn cof-impl [[a1 a2 a3 a4 a5 a6 a7]
+                [b1 b2 b3 b4 b5 b6 b7]]
   ;(println "cof" [a1 a2 a3 a4 a5 a6 a7] [b1 b2 b3 b4 b5 b6 b7])
   (let [l2 (+ a2 b2)
         l3 (max (positive (inc b6) b6)
@@ -33,14 +33,12 @@
                                                  (max b3 b4)))]
     [l1 l2 l3 l4 l5 l6 l7]))
 
-;(def combine-on-face (memoize cof))
-
 (def combine-on-face
   (let [mem (atom {})]
     (fn [a b]
       (if-let [e (find @mem [a b])]
         (val e)
-        (let [ret (cof a b)]
+        (let [ret (cof-impl a b)]
           (swap! mem assoc [a b] ret)
           ret)))))
 
@@ -63,7 +61,7 @@
           (>= m ai s) (recur m ai s idx i (inc i))
           :else (recur m s (max ai t) idx idy (inc i)))))))
 
-(defmacro linear-max2DistinctFolios [a b k]
+(defmacro max2DistinctFolios [a b k]
   `(let [[ma# sa# ia#] (max2 ~a ~k)
         [mb# sb# ib#] (max2 ~b ~k)]
     (if (not= ia# ib#)
@@ -71,7 +69,7 @@
       (max (+ ma# sb#)
            (+ sa# mb#)))))
 
-(defn linear-max3DistinctFolios [a b c k]
+(defn max3DistinctFolios [a b c k]
   (let [[ma sa ta ia ja] (max3 a k)
         [mb sb tb ib jb] (max3 b k)
         [mc sc tc ic jc] (max3 c k)
@@ -120,41 +118,39 @@
               cb-blocker (if (= ja ic) ta sa)
               ia ma)))))
 
-(defn coe [labels]
+(defn coe-impl [labels]
   (let [k (count labels)]
     (if (= k 1)
       (first labels)
       (let [[a1 a2 a3 a4 a5 a6 a7] (apply map vector labels)
             l7 (max (apply max a7)
-                    (linear-max2DistinctFolios a4 a6 k))
+                    (max2DistinctFolios a4 a6 k))
             l2 (apply max a2)
             l4 (apply max a4)
             l6 (apply max a6)
             l3 (max (apply max a3)
-                    (linear-max2DistinctFolios a2 a6 k))
+                    (max2DistinctFolios a2 a6 k))
             l5 (max (apply max a5)
-                    (linear-max2DistinctFolios a2 a4 k))
+                    (max2DistinctFolios a2 a4 k))
             l1 (max (apply max a1)
                     l2, l3, l4, l5, l6
-                    (linear-max2DistinctFolios a3 a4 k)
-                    (linear-max2DistinctFolios a5 a6 k)
-                    (linear-max2DistinctFolios a2 a7 k)
-                    (linear-max2DistinctFolios a4 a4 k)
-                    (linear-max2DistinctFolios a6 a6 k)
+                    (max2DistinctFolios a3 a4 k)
+                    (max2DistinctFolios a5 a6 k)
+                    (max2DistinctFolios a2 a7 k)
+                    (max2DistinctFolios a4 a4 k)
+                    (max2DistinctFolios a6 a6 k)
                     (if (>= k 3)
-                      (linear-max3DistinctFolios a2 a4 a6 k)
+                      (max3DistinctFolios a2 a4 a6 k)
                       0))]
         ;(println "coe" (apply str labels))
         [l1 l2 l3 l4 l5 l6 l7]))))
-
-;(def combine-on-edge (memoize coe))
 
 (def combine-on-edge
   (let [mem (atom {})]
     (fn [args]
       (if-let [e (find @mem args)]
         (val e)
-        (let [ret (coe args)]
+        (let [ret (coe-impl args)]
           (swap! mem assoc args ret)
           ret)))))
 

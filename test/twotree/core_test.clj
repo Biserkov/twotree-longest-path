@@ -11,13 +11,13 @@
 (use 'clojure.pprint)
 
 
-(defn max2DistinctFolios [a b k]
+(defn naive-max2DistinctFolios [a b k]
   (reduce max (for [i (range 0 k)
                     j (range 0 k)
                     :when (not= i j)]
                 (+ (nth a i) (nth b j)))))
 
-(defn max3DistinctFolios [a b c k]
+(defn naive-max3DistinctFolios [a b c k]
   (reduce max (for [i (range 0 k)
                     j (range 0 k)
                     t (range 0 k)
@@ -54,26 +54,26 @@
                         (let [[m s t i j] (max3 v k)]
                           (not= i j))))
 
-(defspec linear-max2DistinctFolios-equals-naive-implementation 1000
+(defspec max2DistinctFolios-equals-naive-implementation 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 2)
                          v1 (gen/vector gen/pos-int k)
                          v2 (gen/vector gen/pos-int k)]
-                        (= (linear-max2DistinctFolios v1 v2 k)
-                           (max2DistinctFolios v1 v2 k))))
+                        (= (max2DistinctFolios v1 v2 k)
+                           (naive-max2DistinctFolios v1 v2 k))))
 
-#_(defspec linear-max3DistinctFolios-equals-naive-implementation 1000
+#_(defspec max3DistinctFolios-equals-naive-implementation 1000
            (prop'/for-all [k gen/s-pos-int :when (>= k 3)
                            v1 (gen/vector gen/pos-int k)
                            v2 (gen/vector gen/pos-int k)
                            v3 (gen/vector gen/pos-int k)]
-                          (= (linear-max3DistinctFolios v1 v2 v3 k)
-                             (max3DistinctFolios v1 v2 v3 k))))
+                          (= (max3DistinctFolios v1 v2 v3 k)
+                             (naive-max3DistinctFolios v1 v2 v3 k))))
 
 (defspec max2DistinctFolios-less-than-sum-max 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 2)
                          v1 (gen/vector gen/pos-int k)
                          v2 (gen/vector gen/pos-int k)]
-                        (<= (linear-max2DistinctFolios v1 v2 k)
+                        (<= (max2DistinctFolios v1 v2 k)
                             (+ (apply max v1)
                                (apply max v2)))))
 
@@ -81,14 +81,14 @@
          (prop'/for-all [k gen/s-pos-int :when (>= k 2)
                          v1 (gen/vector gen/pos-int k)
                          v2 (gen/vector gen/pos-int k)]
-                        (= (linear-max2DistinctFolios v1 v2 k)
-                           (linear-max2DistinctFolios v2 v1 k))))
+                        (= (max2DistinctFolios v1 v2 k)
+                           (max2DistinctFolios v2 v1 k))))
 
 (defspec max2DistinctFolios-greather-than-each-max 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 2)
                          v1 (gen/vector gen/pos-int k)
                          v2 (gen/vector gen/pos-int k)]
-                        (let [m (linear-max2DistinctFolios v1 v2 k)]
+                        (let [m (max2DistinctFolios v1 v2 k)]
                           (and (>= m (apply max v1))
                                (>= m (apply max v2))))))
 
