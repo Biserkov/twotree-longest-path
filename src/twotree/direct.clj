@@ -56,7 +56,6 @@
   (second (set/intersection (G u) (G v))))
 
 (defn compute-label-direct [{:keys [data root] :as graph} & complex]
-  ;(println (count data) complex)
   (cond (= (data (first root)) (set/int-set (rest root))) [1 1 0 0 0 0 0]
         complex (->> (split-edge graph)
                      (map compute-label-direct)

@@ -118,7 +118,6 @@
               ia ma)))))
 
 (defn coe [labels]
-  ;(println "coe" (apply str labels))
   (let [k (count labels)]
     (if (= k 1)
       (first labels)
