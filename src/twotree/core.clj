@@ -164,7 +164,6 @@
           (swap! mem assoc args ret)
           ret)))))
 
-
 (defn compute-degrees [tree]
   (loop [result (transient (m/int-map))
          d-seq tree
@@ -178,39 +177,17 @@
                (if (= degree 2) (conj deg2 vertex) deg2))))))
 
 
-
-
-
-
-
-
 (require 'clojure.edn)
-(defn read-2tree [a-str]
-  (clojure.edn/read-string {:readers {'s set/int-set
-                                      'm #(apply m/int-map %)}} a-str))
 
-#_(defn write-2tree-to-file [t f]
-  (clojure.string/replace (str "#m[" (subs s 1 (dec (.length s))) "]") "#{" "#s #{")
-  )
+(defn read-2tree [file]
+  (with-open [r (java.io.PushbackReader. (clojure.java.io/reader file))]
+     (loop [tree (transient (m/int-map))
+            v (clojure.edn/read {:eof nil} r)]
+       (if v
+         (recur (assoc! tree v (clojure.edn/read {:readers {'s clojure.data.int-map/int-set}} r))
+                (clojure.edn/read {:eof nil} r))
+         tree))))
 
-
-#_(def read-time (fn [n]
-                 ;(println n)
-                 (let [
-                       ;t (Generate2tree n)
-                       ;s (str (:data t))
-
-                       tree (->> n
-                                 ;(str "g" n ".txt")
-                                 slurp
-                                 read-2tree
-                                 (#(hash-map :root [0 1] :data (doall %))))
-                       ;crazy (generate-crazy n)
-                       ]
-                   ;(spit (str "g" n ".txt") t-str)
-                   (time (longest-path-linear tree))
-                   ;(println n)
-                   ;(pprint (class (second (first (preprocess-tree tree)))))
-                   ;(println (new java.util.Date))
-                   )))
+(defn write-2tree-to-file [s]
+  (clojure.string/replace (subs s 1 (dec (.length s))) "#{" "#s #{"))
 
