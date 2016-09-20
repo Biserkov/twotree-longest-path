@@ -55,4 +55,4 @@
                                    (compute-label-direct H2 (simple? H2))))))
 
 (defn longest-path-direct [graph]
-  (first (compute-label-direct graph :complex)))
+  (first (compute-label-direct graph (simple? graph))))
