@@ -14,11 +14,10 @@
                (conj keysNewG f)))
       keysNewG)))
 
-(defn split-root-edge [graph]
+(defn split-root-edge [graph components]
   ;(println "edge" (:root graph))
   (let [[u v] (:root graph)
         G (:data graph)
-        components (set/intersection (G u) (G v))
         G-e (assoc G u (set/int-set)
                      v (set/int-set))]
     (map #(let [keysNewG (subgraph G-e %1 (G %1))]
@@ -28,10 +27,10 @@
          components)))
 
 (defn split-root-face [{[u v] :root
-                   G     :data}]
+                        G     :data}
+                       w]
   (let [Gu (G u)
         Gv (G v)
-        w (first (set/intersection Gu Gv))
         Gw (G w)
         G-e (assoc G u (disj Gu v)
                      v (disj Gv u)
@@ -41,22 +40,15 @@
     (vector {:root [u w] :data (assoc (dissoc G-e v) w (set/intersection Gw keysNewG))}
             {:root [w v] :data (assoc (dissoc G-e u) w (set/difference Gw keysNewG))})))
 
-(defn simple? [{[u v] :root
-                G     :data}]
-  (second (set/intersection (G u) (G v))))
-
-(defn trivial? [{root :root, neighbours :data}]
-  (= (neighbours  (first root))
-     (set/int-set (second root))))
-
-(defn compute-label-direct [G & complex]
-  (cond (trivial? G) [1 1 0 0 0 0 0]
-        complex (->> (split-root-edge G)
-                     (map compute-label-direct)
-                     combine-on-edge)
-        :simple (let [[H1 H2] (split-root-face G)]
-                  (combine-on-face (compute-label-direct H1 (simple? H1))
-                                   (compute-label-direct H2 (simple? H2))))))
+(defn compute-label-direct [{:keys [data root] :as G}]
+  (let [i (set/intersection (data (first root)) (data (second root)))]
+    (cond (empty? i) [1 1 0 0 0 0 0]
+          (second i) (->> (split-root-edge G i)
+                          (map compute-label-direct)
+                          combine-on-edge)
+          :simple (let [[H1 H2] (split-root-face G (first i))]
+                    (combine-on-face (compute-label-direct H1)
+                                     (compute-label-direct H2))))))
 
 (defn longest-path-direct [graph]
-  (first (compute-label-direct graph (simple? graph))))
+  (first (compute-label-direct graph)))

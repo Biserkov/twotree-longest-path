@@ -1,9 +1,7 @@
 (ns twotree.main
   (:require [twotree.iterative :refer [longest-path-iterative]]
     [twotree.core :refer [read-2tree]]
-    [twotree.benchmarks :refer :all]
-    ;[clojure.data.fressian :refer :all]
-            )
+    [twotree.benchmarks :refer :all])
   (:gen-class :main true))
 
 (use 'criterium.core)
