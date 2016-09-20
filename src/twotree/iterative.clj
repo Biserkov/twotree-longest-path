@@ -1,8 +1,9 @@
 (ns twotree.iterative
   (:require [twotree.core :refer [combine-on-edge combine-on-face compute-degrees]]))
 
-(defn symmetric [[a1 a2 a3 a4 a5 a6 a7]]
-  [a1 a2 a5 a6 a3 a4 a7])
+(defmacro symmetric [label]
+  `(let [[a1# a2# a3# a4# a5# a6# a7#] ~label]
+     [a1# a2# a5# a6# a3# a4# a7#]))
 
 (defn longest-path-iterative [tree]
   (loop [data (transient tree)
