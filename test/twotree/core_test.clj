@@ -1,6 +1,7 @@
 (ns twotree.core-test
   (:require [twotree.core :refer :all]
-    ;[twotree.benchmarks :refer :all]
+            [twotree.iterative :refer [longest-path-iterative]]
+            [twotree.benchmarks :refer :all]
             [clojure.data.int-map :as set]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]
@@ -10,24 +11,24 @@
 (use 'clojure.pprint)
 
 
-#_(defn max2DistinctFolios [a b k]
+(defn max2DistinctFolios [a b k]
   (reduce max (for [i (range 0 k)
                     j (range 0 k)
                     :when (not= i j)]
                 (+ (nth a i) (nth b j)))))
 
-#_(defn max3DistinctFolios [a b c k]
+(defn max3DistinctFolios [a b c k]
   (reduce max (for [i (range 0 k)
                     j (range 0 k)
                     t (range 0 k)
                     :when (distinct? i j t)]
                 (+ (nth a i) (nth b j) (nth c t)))))
 
-(comment (defspec max3-finds-max 1000
+(defspec max3-finds-max 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 3)
-                         v (gen/vector gen/pos-int k)]
-                        (= (first (max3 v k))
-                           (apply max v))))
+                           v (gen/vector gen/pos-int k)]
+                          (= (first (max3 v k))
+                             (apply max v))))
 
 (defspec max3-maxes-are-correctly-ordered 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 3)
@@ -40,12 +41,6 @@
                          v (gen/vector gen/pos-int k)]
                         (let [[m s t i j] (max3 v k)]
                           (= (nth v i) m))))
-
-(defspec max3-max2-index-is-correct 1000
-         (prop'/for-all [k gen/s-pos-int :when (>= k 3)
-                         v (gen/vector gen/pos-int k)]
-                        (let [[m s t i j] (max3 v k)]
-                          (= (nth v j) s))))
 
 (defspec max3-max2-index-is-correct 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 3)
