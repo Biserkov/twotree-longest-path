@@ -45,8 +45,12 @@
                 G     :data}]
   (second (set/intersection (G u) (G v))))
 
-(defn compute-label-direct [{:keys [data root] :as graph} & complex]
-  (cond (= (data (first root)) (set/int-set (second root))) [1 1 0 0 0 0 0]
+(defn trivial? [{root :root, neighbours :data}]
+  (= (neighbours  (first root))
+     (set/int-set (second root))))
+
+(defn compute-label-direct [G & complex]
+  (cond (trivial? G) [1 1 0 0 0 0 0]
         complex (->> (split-root-edge G)
                      (map compute-label-direct)
                      combine-on-edge)
