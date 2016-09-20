@@ -2,29 +2,6 @@
   (:require [clojure.data.int-map :as set]
             [twotree.core :refer [combine-on-edge combine-on-face]]))
 
-(defn subgraph2 [a s r u Gu v Gv]
-  (loop [r1 r
-         keysNewG (set/int-set [s])]
-    (if (seq r1)
-      (let [f (first r1)
-            Nf (get a f)]
-        (recur (set/union (disj r1 f)
-                          (set/difference Nf
-                                          keysNewG))
-               (conj keysNewG f)))
-      {:root [u v]
-       :data (assoc a u (set/intersection keysNewG Gu)
-                      v (set/intersection keysNewG Gv))})))
-
-(defn split-edge [graph]
-  ;(println "edge" (:root graph))
-  (let [[u v] (:root graph)
-        G (:data graph)
-        components (set/intersection (G u) (G v))
-        G-e (assoc G u (set/int-set)
-                     v (set/int-set))]
-    (map #(subgraph2 G-e %1 (G %1) u (G u) v (G v)) components)))
-
 (defn subgraph [a s r]
   (loop [r1 r
          keysNewG (set/int-set [s])]
@@ -36,6 +13,19 @@
                                           keysNewG))
                (conj keysNewG f)))
       keysNewG)))
+
+(defn split-edge [graph]
+  ;(println "edge" (:root graph))
+  (let [[u v] (:root graph)
+        G (:data graph)
+        components (set/intersection (G u) (G v))
+        G-e (assoc G u (set/int-set)
+                     v (set/int-set))]
+    (map #(let [keysNewG (subgraph G-e %1 (G %1))]
+           {:root [u v]
+            :data (assoc G u (set/intersection keysNewG (G u))
+                           v (set/intersection keysNewG (G v)))})
+         components)))
 
 (defn split-face [{[u v] :root
                    G     :data}]
