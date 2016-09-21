@@ -29,6 +29,7 @@
 (defn split-root-face [{[u v] :root
                         G     :data}
                        w]
+  ;(println "face" [u v w])
   (let [Gu (G u)
         Gv (G v)
         Gw (G w)
@@ -36,7 +37,6 @@
                      v (disj Gv u)
                      w (set/int-set))
         keysNewG (subgraph (dissoc! G-e v) u (G-e u))]
-    ;(println "face" [u v w])
     (vector {:root [u w] :data (assoc! (dissoc! G-e v) w (set/intersection Gw keysNewG))}
             {:root [w v] :data (assoc! (dissoc! G-e u) w (set/difference Gw keysNewG))})))
 
