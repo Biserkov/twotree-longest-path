@@ -14,7 +14,7 @@
                (conj keysNewG f)))
       keysNewG)))
 
-(defn split-root-edge [graph components]
+(defn split-root-edge [graph G1-Gk]
   ;(println "edge" (:root graph))
   (let [[u v] (:root graph)
         G (:data graph)
@@ -24,7 +24,7 @@
            {:root [u v]
             :data (assoc! G u (set/intersection keysNewG (G u))
                            v (set/intersection keysNewG (G v)))})
-         components)))
+         G1-Gk)))
 
 (defn split-root-face [{[u v] :root
                         G     :data}
