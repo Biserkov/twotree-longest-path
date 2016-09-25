@@ -19,11 +19,11 @@
   (let [[u v] (:root graph)
         G (:data graph)
         G-e (assoc! G u (set/int-set)
-                     v (set/int-set))]
+                      v (set/int-set))]
     (map #(let [keysNewG (subgraph G-e %1 (G %1))]
            {:root [u v]
             :data (assoc! G u (set/intersection keysNewG (G u))
-                           v (set/intersection keysNewG (G v)))})
+                            v (set/intersection keysNewG (G v)))})
          G1-Gk)))
 
 (defn split-root-face [{[u v] :root
@@ -34,8 +34,8 @@
         Gv (G v)
         Gw (G w)
         G-e (assoc! G u (disj Gu v)
-                     v (disj Gv u)
-                     w (set/int-set))
+                      v (disj Gv u)
+                      w (set/int-set))
         keysNewG (subgraph (dissoc! G-e v) u (G-e u))]
     (vector {:root [u w] :data (assoc! (dissoc! G-e v) w (set/intersection Gw keysNewG))}
             {:root [w v] :data (assoc! (dissoc! G-e u) w (set/difference Gw keysNewG))})))
