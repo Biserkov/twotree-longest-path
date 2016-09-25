@@ -12,11 +12,11 @@
 (defn paths [generator n]
   (if (> n 2)
     (let [t (generator n)
-          a (longest-path-direct t)
-          b (longest-path-linear t)
-          c (longest-path-iterative (:data t))]
-      (and (= a b c)
-           (< 1 a n)))
+          ;d (longest-path-direct t)
+          l (longest-path-linear t)
+          i (longest-path-iterative (:data t))]
+      (and (= #_d l i)
+           (< 1 i n)))
     true))
 
 (defspec random-2trees num_tests
