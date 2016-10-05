@@ -1,7 +1,7 @@
 (ns twotree.core-test
   (:require [twotree.core :refer :all]
             [twotree.iterative :refer [longest-path-iterative]]
-            [twotree.benchmarks :refer :all]
+            [twotree.generators :refer :all]
             [clojure.data.int-map :as set]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]

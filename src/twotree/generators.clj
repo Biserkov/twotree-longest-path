@@ -1,4 +1,4 @@
-(ns twotree.benchmarks
+(ns twotree.generators
   (:require [clojure.data.int-map :as set]))
 
 (defn generate-random-2tree [n]

@@ -1,5 +1,5 @@
 (ns twotree.main-test
-  (:require [twotree.benchmarks :refer :all]
+  (:require [twotree.generators :refer :all]
             [twotree.iterative :refer [longest-path-iterative]]
             [twotree.preprocessed :refer [longest-path-linear]]
             [twotree.direct :refer [longest-path-direct]]
