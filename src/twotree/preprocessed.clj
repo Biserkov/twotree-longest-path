@@ -40,19 +40,15 @@
                        EdgeNodes
                        (assoc! EdgeNodes (hashCode u v) (conj! (get EdgeNodes (hashCode u v) (transient [])) vertex)))))))))))
 
-(defn compute-label-linear [node edge? edge->faces]
+(defn compute-label-linear [[u v w] edge? edge->faces]
   (if edge?
-    (let [[y x] node
-          folios (or (get edge->faces (hashCode y x))
-                     (get edge->faces (hashCode x y)))]
-      (if folios
-        (combine-on-edge (map (fn [a]
-                                (compute-label-linear (conj node a) false edge->faces))
-                              (persistent! folios)))
-        [1 1 0 0 0 0 0]))
-    (let [[u v w] node]
-      (combine-on-face (compute-label-linear [u w] true edge->faces)
-                       (compute-label-linear [w v] true edge->faces)))))
+    (if-let [folios (get edge->faces (hashCode (min u v) (max u v)))]
+      (combine-on-edge (map (fn [a]
+                              (compute-label-linear (conj [u v] a) false edge->faces))
+                            (persistent! folios)))
+      [1 1 0 0 0 0 0])
+    (combine-on-face (compute-label-linear [u w] true edge->faces)
+                     (compute-label-linear [w v] true edge->faces))))
 
 (defn longest-path-linear [graph]
   (first (compute-label-linear (:root graph) true (preprocess-tree graph))))
