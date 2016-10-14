@@ -9,33 +9,33 @@
   (loop [data tree
          [degrees unprocessed] (compute-degrees tree)
          EdgeLabels (transient {})]
-    (let [vertex (first unprocessed)
+    (let [w (first unprocessed)
           rst (pop unprocessed)
-          edge (get data vertex)
+          edge (get data w)
           u (first edge)
           v (second edge)
           degU (dec (get degrees u))
           degV (dec (get degrees v))
           addU (= 2 degU)
           addV (= 2 degV)
-          [label1 match1] (if-let [normal (get EdgeLabels [u vertex])]
-                            [(combine-on-edge (persistent! normal)) [u vertex]]
-                            (if-let [reversed (get EdgeLabels [vertex u])]
-                              [(symmetric (combine-on-edge (persistent! reversed))) [vertex u]]
+          [label1 match1] (if-let [normal (get EdgeLabels [u w])]
+                            [(combine-on-edge (persistent! normal)) [u w]]
+                            (if-let [reversed (get EdgeLabels [w u])]
+                              [(symmetric (combine-on-edge (persistent! reversed))) [w u]]
                               [[1 1 0 0 0 0 0] false]))
-          [label2 match2] (if-let [normal (get EdgeLabels [vertex v])]
-                            [(combine-on-edge (persistent! normal)) [vertex v]]
-                            (if-let [reversed (get EdgeLabels [v vertex])]
-                              [(symmetric (combine-on-edge (persistent! reversed))) [v vertex]]
+          [label2 match2] (if-let [normal (get EdgeLabels [w v])]
+                            [(combine-on-edge (persistent! normal)) [w v]]
+                            (if-let [reversed (get EdgeLabels [v w])]
+                              [(symmetric (combine-on-edge (persistent! reversed))) [v w]]
                               [[1 1 0 0 0 0 0] false]))
 
           label (combine-on-face label1 label2)]
       (if (= 1 degU degV)
         (first label)
-        (recur (assoc! (dissoc! data vertex)
-                       u (disj (data u) vertex)
-                       v (disj (data v) vertex))
-               [(assoc! (dissoc! degrees vertex)
+        (recur (assoc! (dissoc! data w)
+                       u (disj (data u) w)
+                       v (disj (data v) w))
+               [(assoc! (dissoc! degrees w)
                         u degU
                         v degV)
                 (cond (and addU addV) (conj rst u v)
