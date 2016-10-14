@@ -29,6 +29,10 @@
           addV (= 2 degV)
           [label1 match1] (compute-label-edge u w EdgeLabels)
           [label2 match2] (compute-label-edge w v EdgeLabels)
+          newEdgeLabels (cond (and match1 match2) (dissoc! EdgeLabels match1 match2)
+                              match1 (dissoc! EdgeLabels match1)
+                              match2 (dissoc! EdgeLabels match2)
+                              :else EdgeLabels)
           label (combine-on-face label1 label2)]
       (if (= 1 degU degV)
         (first label)
@@ -42,7 +46,4 @@
                       addU (conj rst u)
                       addV (conj rst v)
                       :else rst)]
-               (assoc! (cond (and match1 match2) (dissoc! EdgeLabels match1 match2)
-                             match1 (dissoc! EdgeLabels match1)
-                             match2 (dissoc! EdgeLabels match2)
-                             :else EdgeLabels) [u v] (conj! (get EdgeLabels [u v] (transient [])) label)))))))
+               (assoc! newEdgeLabels [u v] (conj! (get EdgeLabels [u v] (transient [])) label)))))))

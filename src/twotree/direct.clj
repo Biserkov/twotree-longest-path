@@ -41,7 +41,8 @@
             {:root [w v] :data (assoc! (dissoc! G-e u) w (set/difference Gw keysNewG))})))
 
 (defn compute-label-direct [{:keys [data root] :as G}]
-  (let [i (set/intersection (data (first root)) (data (second root)))]
+  (let [i (set/intersection (data (first root))
+                            (data (second root)))]
     (cond (empty? i) [1 1 0 0 0 0 0]
           (second i) (->> (split-root-edge G i)
                           (map compute-label-direct)
