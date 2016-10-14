@@ -6,12 +6,12 @@
 
 (use 'criterium.core)
 
-(defn -main [file]
+(defn -main [tree-type input]
   (println (.. (java.time.LocalDateTime/now) toLocalTime toString))
-  (bench (->>
-           file
-           read-2tree
-           ;(. Integer parseInt) generate-min-internal-edges-2tree :data
-           ;(. Integer parseInt) generate-max-internal-edges-2tree :data
-           longest-path-iterative))
+  (let [f longest-path-iterative]
+    (bench
+      (condp = tree-type
+        "rnd" (->> input read-2tree f)
+        "min" (->> input (. Integer parseInt) generate-min-internal-edges-2tree :data f)
+        "max" (->> input (. Integer parseInt) generate-max-internal-edges-2tree :data f))))
   (println (.. (java.time.LocalDateTime/now) toLocalTime toString)))
