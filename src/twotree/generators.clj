@@ -4,16 +4,16 @@
 (defn generate-random-2tree [n]
   {:pre [(> n 1)]}
   (loop [acc (transient (set/int-map 0 (set/int-set [1]), 1 (set/int-set [0])))
+         edges [[0 1]]
          i 2]
     (if (= i n)
       {:root [0 1], :data acc}
-      (let [k (int (rand i))
-            Nk (acc k)
-            l (rand-nth (seq Nk))]
+      (let [[k l] (rand-nth edges)]
         (recur (assoc! acc
                        i (set/int-set [k l])
-                       k (conj Nk i)
+                       k (conj (acc k) i)
                        l (conj (acc l) i))
+               (conj edges [k i] [l i])
                (inc i))))))
 
 (defn generate-max-internal-edges-2tree [n]
