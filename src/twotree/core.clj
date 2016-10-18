@@ -42,6 +42,62 @@
           (swap! mem assoc [a b] ret)
           ret)))))
 
+(defn cofp-impl [[a1 a2 a3 a4 a5 a6 a7]
+                 [b1 b2 b3 b4 b5 b6 b7]]
+  ;(println "cof2" [a1 a2 a3 a4 a5 a6 a7] [b1 b2 b3 b4 b5 b6 b7])
+  (let [l2 (+ a2 b2)
+        l3 (max (inc b6)
+                (+ a2 b3)
+                (inc b2)
+                (inc b5)
+                (+ 1 b2 a6))
+        l4 (max a3 a4 (+ a2 b4))
+        l5 (max (inc a4)
+                (+ b2 a5)
+                (inc a2)
+                (inc a3)
+                (+ 1 a2 b4))
+        l6 (max b5 b6 (+ b2 a6))
+        l7 (max (+ a4 b6)
+                (+ a4 b5)
+                (+ a4 b2)
+                (+ a2 b6)
+                (+ a3 b6)
+                (+ a2 b7)
+                (+ a7 b2))
+        l1 (max l2 l3 l4 l5 l6 a1 b1 (inc l7) (+ (max a5 a6)
+                                                 (max b3 b4)))]
+    [l1 l2 l3 l4 l5 l6 l7]))
+
+(def combine-on-face-proper
+  (let [mem (atom {})]
+    (fn [a b]
+      ;(println [a b])
+      (if-let [e (find @mem [a b])]
+        (val e)
+        (let [ret (cofp-impl a b)]
+          (swap! mem assoc [a b] ret)
+          ret)))))
+
+(defn cof-impl-left [[a1 a2 a3 a4 a5 a6 a7]]
+  (let [l3 (+ 2 a6)
+        l5 (max (inc a2)
+                (inc a3)
+                (inc a4)
+                (inc a5))
+        l7 (max (inc a4) a2 a3 (inc a7))
+        l1 (max l3 l5 a1 (inc l7))]
+    [l1 (inc a2) l3 (max a2 a3 a4 ) l5 (inc a6) l7]))
+
+(def combine-on-face-left
+  (let [mem (atom {})]
+    (fn [label]
+      (if-let [e (find @mem [label])]
+        (val e)
+        (let [ret (cof-impl-left label)]
+          (swap! mem assoc [label] ret)
+          ret)))))
+
 (defmacro max2 [a k]
   `(loop [m# 0 s# 0 idx# 0 i# 0]
     (if (= i# ~k)

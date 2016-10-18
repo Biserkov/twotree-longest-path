@@ -1,5 +1,5 @@
 (ns twotree.iterative
-  (:require [twotree.core :refer [combine-on-edge combine-on-face compute-degrees]]))
+  (:require [twotree.core :refer [combine-on-edge combine-on-face-proper combine-on-face-left compute-degrees]]))
 
 (defmacro reverse-label [label]
   `(let [[a1# a2# a3# a4# a5# a6# a7#] ~label]
@@ -13,6 +13,8 @@
       (let [label (combine-on-edge (persistent! labels))]
         [(if reversed (reverse-label label) label) key])
       [[1 1 0 0 0 0 0] false])))
+(defmacro combine-on-face-right [x]
+  `(reverse-label (combine-on-face-left (reverse-label ~x))))
 
 (defn longest-path-iterative [tree]
   (loop [data tree
@@ -33,7 +35,10 @@
                               match1 (dissoc! EdgeLabels match1)
                               match2 (dissoc! EdgeLabels match2)
                               :else EdgeLabels)
-          label (combine-on-face label1 label2)]
+          label (cond (and label1 label2) (combine-on-face-proper label1 label2)
+                      label1 (combine-on-face-left label1)
+                      label2 (combine-on-face-right label2)
+                      :else [2 2 2 1 2 1 1])]
       (if (= 1 degU degV)
         (first label)
         (recur (assoc! (dissoc! data w)
