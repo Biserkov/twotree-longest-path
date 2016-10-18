@@ -10,4 +10,7 @@
                                   [com.gfredericks/test.chuck "0.2.6"]
                                   ]}
              :uberjar {:aot :all}}
+  :test-selectors {:default (fn [m] (:functional m))
+                   :all (fn [m] true)}
+  :aliases {"test-all" ["test" ":all"]}
   :main twotree.main)

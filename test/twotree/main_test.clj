@@ -19,14 +19,14 @@
            (< 1 i n)))
     true))
 
-(defspec random-2trees num_tests
+(defspec ^:functional random-2trees num_tests
          (for-all [n s-pos-int]
                   (paths generate-random-2tree n)))
 
-(defspec min-internal-edges-2trees num_tests
+(defspec ^:functional min-internal-edges-2trees num_tests
          (for-all [n s-pos-int]
                   (paths generate-min-internal-edges-2tree n)))
 
-(defspec max-internal-edges-2trees num_tests
+(defspec ^:functional max-internal-edges-2trees num_tests
          (for-all [n s-pos-int]
                   (paths generate-max-internal-edges-2tree n)))
