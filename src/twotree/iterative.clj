@@ -5,14 +5,12 @@
   `(let [[a1# a2# a3# a4# a5# a6# a7#] ~label]
      [a1# a2# a5# a6# a3# a4# a7#]))
 
-(defn compute-label-edge [a b EdgeLabels]
-  (let [reversed (< b a)
-        key (if reversed [b a] [a b])
-        labels (get EdgeLabels key)]
-    (if labels
-      (let [label (combine-on-edge (persistent! labels))]
-        [(if reversed (reverse-label label) label) key])
-      [[1 1 0 0 0 0 0] false])))
+(defn compute-label-edge [a b EdgeLabels key]
+  (if-let [labels (get EdgeLabels key)]
+    (let [label (combine-on-edge (persistent! labels))]
+      (if (< b a) (reverse-label label) label))
+    false))
+
 (defmacro combine-on-face-right [x]
   `(reverse-label (combine-on-face-left (reverse-label ~x))))
 
@@ -29,11 +27,13 @@
           degV (dec (get degrees v))
           addU (= 2 degU)
           addV (= 2 degV)
-          [label1 match1] (compute-label-edge u w EdgeLabels)
-          [label2 match2] (compute-label-edge w v EdgeLabels)
-          newEdgeLabels (cond (and match1 match2) (dissoc! EdgeLabels match1 match2)
-                              match1 (dissoc! EdgeLabels match1)
-                              match2 (dissoc! EdgeLabels match2)
+          key1 (if (< u w) [u w] [w u])
+          key2 (if (< w v) [w v] [v w])
+          label1 (compute-label-edge u w EdgeLabels key1)
+          label2 (compute-label-edge w v EdgeLabels key2)
+          newEdgeLabels (cond (and label1 label2) (dissoc! EdgeLabels key1 key2)
+                              label1 (dissoc! EdgeLabels key1)
+                              label2 (dissoc! EdgeLabels key2)
                               :else EdgeLabels)
           label (cond (and label1 label2) (combine-on-face-proper label1 label2)
                       label1 (combine-on-face-left label1)
