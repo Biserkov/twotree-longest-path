@@ -81,10 +81,7 @@
 
 (defn cof-impl-left [[a1 a2 a3 a4 a5 a6 a7]]
   (let [l3 (+ 2 a6)
-        l5 (max (inc a2)
-                (inc a3)
-                (inc a4)
-                (inc a5))
+        l5 (inc (max a2 a3 a4 a5))
         l7 (max (inc a4) a2 a3 (inc a7))
         l1 (max l3 l5 a1 (inc l7))]
     [l1 (inc a2) l3 (max a2 a3 a4 ) l5 (inc a6) l7]))
