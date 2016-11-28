@@ -1,4 +1,4 @@
-(ns twotree.generators
+(ns longest-path.generators
   (:require [clojure.data.int-map :as set]))
 
 (defn generate-random-2tree [n]

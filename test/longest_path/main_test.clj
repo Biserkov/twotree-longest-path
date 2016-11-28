@@ -1,8 +1,8 @@
-(ns twotree.main-test
-  (:require [twotree.generators :refer :all]
-            [twotree.iterative :refer [longest-path-iterative]]
-            [twotree.preprocessed :refer [longest-path-linear]]
-            [twotree.direct :refer [longest-path-direct]]
+(ns longest-path.main-test
+  (:require [longest-path.generators :refer :all]
+            [longest-path.iterative :refer [longest-path-iterative]]
+            [longest-path.preprocessed :refer [longest-path-linear]]
+            [longest-path.direct :refer [longest-path-direct]]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :refer [s-pos-int]]
             [clojure.test.check.properties :refer [for-all]]))

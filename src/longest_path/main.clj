@@ -1,7 +1,7 @@
-(ns twotree.main
-  (:require [twotree.iterative :refer [longest-path-iterative]]
-            [twotree.core :refer [read-2tree]]
-            [twotree.generators :refer :all])
+(ns longest-path.main
+  (:require [longest-path.iterative :refer [longest-path-iterative]]
+            [longest-path.core :refer [read-2tree]]
+            [longest-path.generators :refer :all])
   (:gen-class :main true))
 
 (use 'criterium.core)

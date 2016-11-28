@@ -1,5 +1,5 @@
-(ns twotree.core-test
-  (:require [twotree.core :refer :all]
+(ns longest-path.core-test
+  (:require [longest-path.iterative :refer :all]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]
             [com.gfredericks.test.chuck.properties :as prop']))

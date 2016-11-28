@@ -1,5 +1,6 @@
-(ns twotree.preprocessed
-  (:require [twotree.core :refer [combine-on-edge combine-on-face compute-degrees]]
+(ns longest-path.preprocessed
+  (:require [longest-path.iterative :refer [combine-on-edge compute-degrees]]
+            [longest-path.direct :refer [combine-on-face]]
             [clojure.data.int-map :as set]
             [clojure.data.int-map :as m]))
 
