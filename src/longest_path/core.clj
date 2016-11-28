@@ -1,11 +1,10 @@
-(ns longest-path.core
-  (:require [clojure.data.int-map :as m]))
+(ns longest-path.core)
 
 (require 'clojure.edn)
 
 (defn read-2tree [file]
   (with-open [r (java.io.PushbackReader. (clojure.java.io/reader file))]
-     (loop [tree (transient (m/int-map))
+     (loop [tree (transient (clojure.data.int-map/int-map))
             v (clojure.edn/read {:eof nil} r)]
        (if v
          (recur (assoc! tree v (clojure.edn/read {:readers {'s clojure.data.int-map/int-set}} r))

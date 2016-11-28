@@ -1,5 +1,4 @@
-(ns longest-path.iterative
-  (:require [clojure.data.int-map :as m]))
+(ns longest-path.iterative)
 
 (defmacro max2 [a k]
   `(loop [m# 0 s# 0 idx# 0 i# 0]
@@ -37,8 +36,7 @@
         ba-blocker (if (= ib ia) ja ia)
         bc-blocker (if (= ib ic) jc ic)
         ca-blocker (if (= ic ia) ja ia)
-        cb-blocker (if (= ic ib) jb ib)
-        ]
+        cb-blocker (if (= ic ib) jb ib)]
 
     (max (+ ma                                              ;a b c
             (if (= ia ib) sb mb)
@@ -185,7 +183,7 @@
   `(reverse-label (combine-on-face-left (reverse-label ~x))))
 
 (defn compute-degrees [tree]
-  (loop [result (transient (m/int-map))
+  (loop [result (transient (clojure.data.int-map/int-map))
          d-seq tree
          deg2 (list)]
     (if (empty? d-seq)

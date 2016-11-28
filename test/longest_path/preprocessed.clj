@@ -1,8 +1,6 @@
 (ns longest-path.preprocessed
   (:require [longest-path.iterative :refer [combine-on-edge compute-degrees]]
-            [longest-path.direct :refer [combine-on-face]]
-            [clojure.data.int-map :as set]
-            [clojure.data.int-map :as m]))
+            [longest-path.direct :refer [combine-on-face]]))
 
 (defn hashCode [x y]
   (+ x (bit-shift-left y 25)))
@@ -11,7 +9,7 @@
   (let [[x y] (:root tree)]
     (loop [data (:data tree)
            [degrees unprocessed] (compute-degrees (:data tree))
-           EdgeNodes (transient (m/int-map (hashCode x y) (transient (set/intersection (data x) (data y)))))]
+           EdgeNodes (transient (clojure.data.int-map/int-map (hashCode x y) (transient (clojure.data.int-map/intersection (data x) (data y)))))]
       (if (empty? unprocessed)
         EdgeNodes
         (let [vertex (first unprocessed)
