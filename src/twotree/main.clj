@@ -11,7 +11,8 @@
   (let [f longest-path-iterative]
     (bench
       (condp = tree-type
-        "rnd" (->> input read-2tree f)
+        "fs"  (->> input read-2tree f)
+        "rnd" (->> input (. Integer parseInt) generate-random-2tree :data f)
         "min" (->> input (. Integer parseInt) generate-min-internal-edges-2tree :data f)
         "max" (->> input (. Integer parseInt) generate-max-internal-edges-2tree :data f))))
   (println (.. (java.time.LocalDateTime/now) toLocalTime toString)))
