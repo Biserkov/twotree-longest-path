@@ -1,4 +1,4 @@
-(defproject twotree "0.1.0-SNAPSHOT"
+(defproject longest-path "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -13,4 +13,4 @@
   :test-selectors {:default (fn [m] (:functional m))
                    :all (fn [m] true)}
   :aliases {"test-all" ["test" ":all"]}
-  :main twotree.main)
+  :main longest-path.main)
