@@ -1,5 +1,7 @@
 # O(n) algorithm for computing longest paths in 2-trees
 
+## Overview
+
 In 2013 Markov, Vassivel and Manev published a novel linear time [algorithm](https://sites.google.com/site/minkommarkov/longest-2-tree--draft.pdf?attredirects=0&d=1) for computing longest paths in 2-trees.
 
 This repository contains 3 implementations of said algorithm in Clojure:
@@ -12,4 +14,10 @@ The [third](https://github.com/Biserkov/twotree-longest-path/blob/master/src/lon
 
 Only the third one should be used for any practical purposes.
 
-I used property-based (a.k.a. generative) testing during development and found it provided great value.
+## Data representation
+
+The vertices of the graph are represented as positive integers.
+
+On an abstract lever, the graph is represented as an adjacency list.
+
+On a concrete level, it's a int-map in which a vertex acts as key and the corresponding values is an int-set of the its neighbours.
