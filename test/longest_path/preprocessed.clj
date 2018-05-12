@@ -1,6 +1,7 @@
 (ns longest-path.preprocessed
   (:require [longest-path.iterative :refer [combine-on-edge compute-degrees]]
-            [longest-path.direct :refer [combine-on-face]]))
+            [longest-path.direct :refer [combine-on-face]]
+            clojure.data.int-map))
 
 (defn hashCode [x y]
   (+ x (bit-shift-left y 25)))

@@ -1,4 +1,5 @@
-(ns longest-path.core)
+(ns longest-path.core
+  (:require clojure.data.int-map))
 
 (require 'clojure.edn)
 

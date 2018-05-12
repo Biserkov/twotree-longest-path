@@ -1,4 +1,5 @@
-(ns longest-path.iterative)
+(ns longest-path.iterative
+  (:require clojure.data.int-map))
 
 (defmacro max2 [a k]
   `(loop [m# 0 s# 0 idx# 0 i# 0]
