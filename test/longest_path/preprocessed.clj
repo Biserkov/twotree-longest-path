@@ -50,5 +50,5 @@
     (combine-on-face (compute-label-linear [u w] true edge->faces)
                      (compute-label-linear [w v] true edge->faces))))
 
-(defn longest-path-linear [graph]
+(defn longest-path-length [graph]
   (first (compute-label-linear (:root graph) true (preprocess-tree graph))))

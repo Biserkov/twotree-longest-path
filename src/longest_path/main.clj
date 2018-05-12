@@ -1,6 +1,6 @@
 (ns longest-path.main
-  (:require [longest-path.iterative :refer [longest-path-iterative]]
-            [longest-path.core :refer [read-2tree]]
+  (:require longest-path.iterative
+            longest-path.core
             [longest-path.generators :refer :all])
   (:gen-class :main true))
 
@@ -8,10 +8,10 @@
 
 (defn -main [tree-type input]
   (println (.. (java.time.LocalDateTime/now) toLocalTime toString))
-  (let [f longest-path-iterative]
+  (let [f longest-path.iterative/longest-path-length]
     (bench
       (condp = tree-type
-        "fs"  (->> input read-2tree f)
+        "fs"  (->> input longest-path.core/read-2tree f)
         "rnd" (->> input (. Integer parseInt) generate-random-2tree :data f)
         "min" (->> input (. Integer parseInt) generate-min-internal-edges-2tree :data f)
         "max" (->> input (. Integer parseInt) generate-max-internal-edges-2tree :data f))))

@@ -92,5 +92,5 @@
                     (combine-on-face (compute-label-direct H1)
                                      (compute-label-direct H2))))))
 
-(defn longest-path-direct [graph]
+(defn longest-path-length [graph]
   (first (compute-label-direct graph)))

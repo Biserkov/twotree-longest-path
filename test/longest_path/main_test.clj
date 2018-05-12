@@ -1,20 +1,20 @@
 (ns longest-path.main-test
   (:require [longest-path.generators :refer :all]
-            [longest-path.iterative :refer [longest-path-iterative]]
-            [longest-path.preprocessed :refer [longest-path-linear]]
-            [longest-path.direct :refer [longest-path-direct]]
+            longest-path.iterative
+            longest-path.preprocessed
+            longest-path.direct
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :refer [s-pos-int]]
             [clojure.test.check.properties :refer [for-all]]))
 
-(def num_tests (int 1e4))
+(def num_tests (int 1e2))
 
 (defn paths [generator n]
   (if (> n 2)
     (let [t (generator n)
-          ;d (longest-path-direct t)
-          l (longest-path-linear t)
-          i (longest-path-iterative (:data t))]
+          ;d (longest-path.direct/longest-path-length t)
+          l (longest-path.preprocessed/longest-path-length t)
+          i (longest-path.iterative/longest-path-length (:data t))]
       (and (= #_d l i)
            (< 1 i n)))
     true))

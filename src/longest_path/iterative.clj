@@ -195,7 +195,7 @@
                (rest d-seq)
                (if (= degree 2) (conj deg2 vertex) deg2))))))
 
-(defn longest-path-iterative [tree]
+(defn longest-path-length [tree]
   (loop [data tree
          [degrees unprocessed] (compute-degrees tree)
          EdgeLabels (transient {})]
