@@ -55,21 +55,16 @@
                (conj keysNewG f)))
       keysNewG)))
 
-(defn split-root-edge [graph G1-Gk]
-  ;(println "edge" (:root graph))
-  (let [[u v] (:root graph)
-        G (:data graph)
-        G-e (assoc! G u (set/int-set)
+(defn split-root-edge [G u v G1-Gk]
+  ;(println "edge" [u v])
+  (let [G-e (assoc! G u (set/int-set)
                       v (set/int-set))]
     (map #(let [keysNewG (subgraph G-e %1 (G %1))]
-           {:root [u v]
-            :data (assoc! G u (set/intersection keysNewG (G u))
-                            v (set/intersection keysNewG (G v)))})
+            (assoc! G u (set/intersection keysNewG (G u))
+                      v (set/intersection keysNewG (G v))))
          G1-Gk)))
 
-(defn split-root-face [{[u v] :root
-                        G     :data}
-                       w]
+(defn split-root-face [G u v w]
   ;(println "face" [u v w])
   (let [Gu (G u)
         Gv (G v)
@@ -78,19 +73,21 @@
                       v (disj Gv u)
                       w (set/int-set))
         keysNewG (subgraph (dissoc! G-e v) u (G-e u))]
-    (vector {:root [u w] :data (assoc! (dissoc! G-e v) w (set/intersection Gw keysNewG))}
-            {:root [w v] :data (assoc! (dissoc! G-e u) w (set/difference Gw keysNewG))})))
+    [(assoc! (dissoc! G-e v) w (set/intersection Gw keysNewG))
+     (assoc! (dissoc! G-e u) w (set/difference   Gw keysNewG))]))
 
-(defn compute-label-direct [{:keys [data root] :as G}]
-  (let [i (set/intersection (data (first root))
-                            (data (second root)))]
+(defn compute-label-direct [G u v]
+  (let [i (set/intersection (G u)
+                            (G v))]
     (cond (empty? i) [1 1 0 0 0 0 0]
-          (second i) (->> (split-root-edge G i)
-                          (map compute-label-direct)
+          (second i) (->> (split-root-edge G u v i)
+                          (map #(compute-label-direct % u v))
                           combine-on-edge)
-          :simple (let [[H1 H2] (split-root-face G (first i))]
-                    (combine-on-face (compute-label-direct H1)
-                                     (compute-label-direct H2))))))
+          :simple (let [w (first i)
+                        [H1 H2] (split-root-face G u v w)]
+                    (combine-on-face (compute-label-direct H1 u w)
+                                     (compute-label-direct H2 w v))))))
 
 (defn longest-path-length [graph]
-  (first (compute-label-direct graph)))
+  (let [[v neib] (first graph)]
+    (first (compute-label-direct graph v (first neib)))))

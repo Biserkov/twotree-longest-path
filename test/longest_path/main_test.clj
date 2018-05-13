@@ -14,7 +14,7 @@
     (let [t (generator n)
           ;d (longest-path.direct/longest-path-length t)
           l (longest-path.preprocessed/longest-path-length t)
-          i (longest-path.iterative/longest-path-length (:data t))]
+          i (longest-path.iterative/longest-path-length t)]
       (and (= #_d l i)
            (< 1 i n)))
     true))

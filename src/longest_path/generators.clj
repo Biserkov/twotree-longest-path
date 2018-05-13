@@ -7,7 +7,7 @@
          edges [[0 1]]
          i 2]
     (if (= i n)
-      {:root [0 1], :data acc}
+      acc
       (let [[k l] (rand-nth edges)]
         (recur (assoc! acc
                        i (set/int-set [k l])
@@ -22,7 +22,7 @@
                                      1 (set/int-set [0])))
          i 2]
     (if (= i n)
-      {:root [0 1], :data acc}
+      acc
       (let [k (dec i)
             Nk (acc k)
             l (dec k)]
@@ -40,7 +40,6 @@
          acc (transient (set/int-map 0 (set/dense-int-set (range 1 n))
                                      1 (set/dense-int-set (conj (range 2 n) 0))))]
     (if (= i n)
-      {:root [0 1]
-       :data acc}
+      acc
       (recur (inc i)
              (assoc! acc i (set/int-set [0 1]))))))
