@@ -7,7 +7,7 @@
             [clojure.test.check.generators :refer [s-pos-int]]
             [clojure.test.check.properties :refer [for-all]]))
 
-(def num_tests (int 1e2))
+(def num_tests (int 1e4))
 
 (defn paths [generator n]
   (if (> n 2)
