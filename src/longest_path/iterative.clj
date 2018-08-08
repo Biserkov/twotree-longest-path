@@ -24,57 +24,32 @@
   `(let [[a1# a2# ia#] (max2 ~a ~k)
          [b1# b2# ib#] (max2 ~b ~k)]
      (if (not= ia# ib#)
-
-(defn max3DistinctFolios [a b c k]
-  (let [[ma sa ta ia ja] (max3 a k)
-        [mb sb tb ib jb] (max3 b k)
-        [mc sc tc ic jc] (max3 c k)
-        ab-blocker (if (= ia ib) jb ib)
-        ac-blocker (if (= ia ic) jc ic)
-        ba-blocker (if (= ib ia) ja ia)
-        bc-blocker (if (= ib ic) jc ic)
-        ca-blocker (if (= ic ia) ja ia)
-        cb-blocker (if (= ic ib) jb ib)]
-
-    (max (+ ma                                              ;a b c
-            (if (= ia ib) sb mb)
-            (condp = ic
-              ia (if (= jc ab-blocker) tc sc)
-              ab-blocker (if (= jc ia) tc sc)
-              ic mc))
-         (+ ma                                              ;a c b
-            (if (= ia ic) sc mc)
-            (condp = ib
-              ia (if (= jb ac-blocker) tb sb)
-              ac-blocker (if (= jb ia) tb sb)
-              ib mb))
-         (+ mb                                              ;b c a
-            (if (= ic ib) sc mc)
-            (condp = ia
-              ib (if (= ja bc-blocker) ta sa)
-              bc-blocker (if (= ja ib) ta sa)
-              ia ma))
-         (+ mb                                              ;b a c
-            (if (= ia ib) sa ma)
-            (condp = ic
-              ib (if (= jc ba-blocker) tc sc)
-              ba-blocker (if (= jc ib) tc sc)
-              ic mc))
-         (+ mc                                              ;c a b
-            (if (= ic ia) sa ma)
-            (condp = ib
-              ic (if (= jb ca-blocker) tb sb)
-              ca-blocker (if (= jb ic) tb sb)
-              ib mb))
-         (+ mc                                              ;c b a
-            (if (= ic ib) sb mb)
-            (condp = ia
-              ic (if (= ja cb-blocker) ta sa)
-              cb-blocker (if (= ja ic) ta sa)
-              ia ma)))))
        (+ a1# b1#)
        (max (+ a1# b2#)
             (+ a2# b1#)))))
+
+(defmacro valid-combo [a1 b1 c1
+                  am
+                  b2 bm
+                  c2 c3 cm cn ab-index]
+  `(+ ~a1
+      (if (= ~am ~bm) ~b2 ~b1)
+      (condp = ~cm
+        ~am       (if (= ~cn ~ab-index) ~c3 ~c2)
+        ~ab-index (if (= ~cn ~am)       ~c3 ~c2)
+        ~c1)))
+
+(defn max3DistinctFolios [as bs cs k]
+  (let [[a a2 a3 am an] (max3 as k)
+        [b b2 b3 bm bn] (max3 bs k)
+        [c c2 c3 cm cn] (max3 cs k)]
+    (max
+      (valid-combo a b c am b2 bm c2 c3 cm cn (if (= am bm) bn bm))
+      (valid-combo a c b am c2 cm b2 b3 bm bn (if (= am cm) cn cm))
+      (valid-combo b a c bm a2 am c2 c3 cm cn (if (= bm am) an am))
+      (valid-combo b c a bm c2 cm a2 a3 am an (if (= bm cm) cn cm))
+      (valid-combo c a b cm a2 am b2 b3 bm bn (if (= cm am) an am))
+      (valid-combo c b a cm b2 bm a2 a3 am an (if (= cm bm) bn bm)))))
 
 (defn coe-impl [labels]
   (let [k (count labels)]
@@ -111,8 +86,6 @@
         (let [ret (coe-impl args)]
           (swap! mem assoc args ret)
           ret)))))
-
-
 
 (defn cofp-impl [[a1 a2 a3 a4 a5 a6 a7]
                  [b1 b2 b3 b4 b5 b6 b7]]
