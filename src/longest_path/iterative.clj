@@ -21,12 +21,9 @@
           :else (recur m s (max ai t) idx idy (inc i)))))))
 
 (defmacro max2DistinctFolios [a b k]
-  `(let [[ma# sa# ia#] (max2 ~a ~k)
-         [mb# sb# ib#] (max2 ~b ~k)]
+  `(let [[a1# a2# ia#] (max2 ~a ~k)
+         [b1# b2# ib#] (max2 ~b ~k)]
      (if (not= ia# ib#)
-       (+ ma# mb#)
-       (max (+ ma# sb#)
-            (+ sa# mb#)))))
 
 (defn max3DistinctFolios [a b c k]
   (let [[ma sa ta ia ja] (max3 a k)
@@ -75,6 +72,9 @@
               ic (if (= ja cb-blocker) ta sa)
               cb-blocker (if (= ja ic) ta sa)
               ia ma)))))
+       (+ a1# b1#)
+       (max (+ a1# b2#)
+            (+ a2# b1#)))))
 
 (defn coe-impl [labels]
   (let [k (count labels)]
