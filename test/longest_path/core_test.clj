@@ -36,11 +36,12 @@
                         (let [[m s t i j] (max3 v k)]
                           (not= i j))))
 
-(defn naive-max2DistinctFolios [a b k]
-  (reduce max (for [i (range 0 k)
-                    j (range 0 k)
-                    :when (not= i j)]
-                (+ (nth a i) (nth b j)))))
+(defn naive-max2DistinctFolios [a b n]
+  (reduce max
+          (for [i (range 0 n)
+                j (range 0 n)
+                :when (not= i j)]
+            (+ (nth a i) (nth b j)))))
 
 (defspec max2DistinctFolios-equals-naive-implementation 1000
          (prop'/for-all [k gen/s-pos-int :when (>= k 2)
@@ -72,23 +73,18 @@
                           (and (>= m (apply max v1))
                                (>= m (apply max v2))))))
 
-
-
-
-(defn naive-max3DistinctFolios [a b c k]
-  (reduce max (for [i (range 0 k)
-                    j (range 0 k)
-                    t (range 0 k)
-                    :when (distinct? i j t)]
-                (+ (nth a i) (nth b j) (nth c t)))))
+(defn naive-max3DistinctFolios [a b c n]
+  (reduce
+    max (for [i (range 0 n)
+              j (range 0 n)
+              k (range 0 n)
+              :when (distinct? i j k)]
+          (+ (nth a i) (nth b j) (nth c k)))))
 
 (defspec max3DistinctFolios-equals-naive-implementation 100
-           (prop'/for-all [k gen/s-pos-int :when (>= k 3)
-                           v1 (gen/vector gen/pos-int k)
-                           v2 (gen/vector gen/pos-int k)
-                           v3 (gen/vector gen/pos-int k)]
-                          (= (max3DistinctFolios v1 v2 v3 k)
-                             (naive-max3DistinctFolios v1 v2 v3 k))))
-
-
-
+         (prop'/for-all [k gen/s-pos-int :when (>= k 3)
+                         v1 (gen/vector gen/pos-int k)
+                         v2 (gen/vector gen/pos-int k)
+                         v3 (gen/vector gen/pos-int k)]
+                        (= (max3DistinctFolios v1 v2 v3 k)
+                           (naive-max3DistinctFolios v1 v2 v3 k))))
