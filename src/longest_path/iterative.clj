@@ -29,14 +29,14 @@
             (+ a2# b1#)))))
 
 (defmacro valid-combo [a1 b1 c1
-                  am
-                  b2 bm
-                  c2 c3 cm cn ab-index]
+                       am
+                       b2 bm
+                       c2 c3 cm cn ab-index]
   `(+ ~a1
       (if (= ~am ~bm) ~b2 ~b1)
       (condp = ~cm
-        ~am       (if (= ~cn ~ab-index) ~c3 ~c2)
-        ~ab-index (if (= ~cn ~am)       ~c3 ~c2)
+        ~am (if (= ~cn ~ab-index) ~c3 ~c2)
+        ~ab-index (if (= ~cn ~am) ~c3 ~c2)
         ~c1)))
 
 (defn max3DistinctFolios [as bs cs k]
@@ -130,7 +130,7 @@
         l5 (inc (max a2 a3 a4 a5))
         l7 (max (inc a4) a2 a3 (inc a7))
         l1 (max l3 l5 a1 (inc l7))]
-    [l1 (inc a2) l3 (max a2 a3 a4 ) l5 (inc a6) l7]))
+    [l1 (inc a2) l3 (max a2 a3 a4) l5 (inc a6) l7]))
 
 (def combine-on-face-left
   (let [mem (atom {})]
@@ -169,40 +169,44 @@
                (if (= degree 2) (conj deg2 vertex) deg2))))))
 
 (defn longest-path-length [tree]
-  (loop [data tree
-         [degrees unprocessed] (compute-degrees tree)
-         EdgeLabels (transient {})]
-    (let [w (first unprocessed)
-          rst (pop unprocessed)
-          edge (get data w)
-          u (apply min edge)
-          v (apply max edge)
-          degU (dec (get degrees u))
-          degV (dec (get degrees v))
-          addU (= 2 degU)
-          addV (= 2 degV)
-          key1 (if (< u w) [u w] [w u])
-          key2 (if (< w v) [w v] [v w])
-          label1 (compute-label-edge u w EdgeLabels key1)
-          label2 (compute-label-edge w v EdgeLabels key2)
-          newEdgeLabels (cond (and label1 label2) (dissoc! EdgeLabels key1 key2)
-                              label1 (dissoc! EdgeLabels key1)
-                              label2 (dissoc! EdgeLabels key2)
-                              :else EdgeLabels)
-          label (cond (and label1 label2) (combine-on-face-proper label1 label2)
-                      label1 (combine-on-face-left label1)
-                      label2 (combine-on-face-right label2)
-                      :else [2 2 2 1 2 1 1])]
-      (if (= 1 degU degV)
-        (first label)
-        (recur (assoc! (dissoc! data w)
-                       u (disj (data u) w)
-                       v (disj (data v) w))
-               [(assoc! (dissoc! degrees w)
-                        u degU
-                        v degV)
-                (cond (and addU addV) (conj rst u v)
-                      addU (conj rst u)
-                      addV (conj rst v)
-                      :else rst)]
-               (assoc! newEdgeLabels [u v] (conj! (get EdgeLabels [u v] (transient [])) label)))))))
+  (let [[all-degrees deg2] (compute-degrees tree)]
+    (if (empty? deg2)
+      1
+      (loop [data tree
+             degrees all-degrees
+             unprocessed deg2
+             EdgeLabels (transient {})]
+        (let [w (first unprocessed)
+              rst (pop unprocessed)
+              edge (get data w)
+              u (apply min edge)
+              v (apply max edge)
+              degU (dec (get degrees u))
+              degV (dec (get degrees v))
+              addU (= 2 degU)
+              addV (= 2 degV)
+              key1 (if (< u w) [u w] [w u])
+              key2 (if (< w v) [w v] [v w])
+              label1 (compute-label-edge u w EdgeLabels key1)
+              label2 (compute-label-edge w v EdgeLabels key2)
+              newEdgeLabels (cond (and label1 label2) (dissoc! EdgeLabels key1 key2)
+                                  label1 (dissoc! EdgeLabels key1)
+                                  label2 (dissoc! EdgeLabels key2)
+                                  :else EdgeLabels)
+              label (cond (and label1 label2) (combine-on-face-proper label1 label2)
+                          label1 (combine-on-face-left label1)
+                          label2 (combine-on-face-right label2)
+                          :else [2 2 2 1 2 1 1])]
+          (if (= 1 degU degV)
+            (first label)
+            (recur (assoc! (dissoc! data w)
+                           u (disj (data u) w)
+                           v (disj (data v) w))
+                   (assoc! (dissoc! degrees w)
+                           u degU
+                           v degV)
+                   (cond (and addU addV) (conj rst u v)
+                         addU (conj rst u)
+                         addV (conj rst v)
+                         :else rst)
+                   (assoc! newEdgeLabels [u v] (conj! (get EdgeLabels [u v] (transient [])) label)))))))))
