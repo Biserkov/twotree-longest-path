@@ -1,5 +1,7 @@
 # O(n) algorithm for computing longest paths in 2-trees
 
+[![Clojars Project](https://clojars.org/twotree.longest-path/latest-version.svg)](https://clojars.org/twotree.longest-path)
+
 ## Overview
 
 In 2013 Markov, Vassivel and Manev published a novel linear time [algorithm](https://sites.google.com/site/minkommarkov/longest-2-tree--draft.pdf?attredirects=0&d=1) for computing longest paths in 2-trees.
