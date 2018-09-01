@@ -2,4 +2,5 @@
 /.lein-*
 /.nrepl-port
 .idea/
+pom.xml
 *.iml
