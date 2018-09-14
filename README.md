@@ -1,6 +1,7 @@
 # O(n) algorithm for computing longest paths in 2-trees
 
 [![Clojars Project](https://clojars.org/twotree.longest-path/latest-version.svg)](https://clojars.org/twotree.longest-path)
+[![cljdoc badge](https://cljdoc.xyz/badge/twotree.longest-path/twotree.longest-path)](https://cljdoc.xyz/d/twotree.longest-path/twotree.longest-path/CURRENT)
 
 ## Overview
 
