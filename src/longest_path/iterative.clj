@@ -1,7 +1,7 @@
 (ns longest-path.iterative
   (:require clojure.data.int-map))
 
-(defmacro max2 [a k]
+(defmacro ^:no-doc max2 [a k]
   `(loop [m# 0 s# 0 idx# 0 i# 0]
      (if (= i# ~k)
        [m# s# idx#]
@@ -10,7 +10,7 @@
            (recur ai# m# i# (inc i#))
            (recur m# (max ai# s#) idx# (inc i#)))))))
 
-(defn max3 [a k]
+(defn ^:no-doc max3 [a k]
   (loop [m 0 s 0 t 0 idx 0 idy 0 i 0]
     (if (= i k)
       [m s t idx idy]
@@ -28,7 +28,7 @@
        (max (+ a1# b2#)
             (+ a2# b1#)))))
 
-(defmacro valid-combo [a1 b1 c1
+(defmacro ^:no-doc valid-combo [a1 b1 c1
                        am
                        b2 bm
                        c2 c3 cm cn ab-index]
@@ -51,7 +51,7 @@
       (valid-combo c a b cm a2 am b2 b3 bm bn (if (= cm am) an am))
       (valid-combo c b a cm b2 bm a2 a3 am an (if (= cm bm) bn bm)))))
 
-(defn coe-impl [labels]
+(defn ^:no-doc coe-impl [labels]
   (let [k (count labels)]
     (if (= k 1)
       (first labels)
@@ -78,7 +78,7 @@
         ;(println "coe" (apply str labels))
         [l1 l2 l3 l4 l5 l6 l7]))))
 
-(def combine-on-edge
+(def ^:no-doc combine-on-edge
   (let [mem (atom {})]
     (fn [args]
       (if-let [e (find @mem args)]
@@ -87,7 +87,7 @@
           (swap! mem assoc args ret)
           ret)))))
 
-(defn cofp-impl [[a1 a2 a3 a4 a5 a6 a7]
+(defn ^:no-doc cofp-impl [[a1 a2 a3 a4 a5 a6 a7]
                  [b1 b2 b3 b4 b5 b6 b7]]
   ;(println "cof2" [a1 a2 a3 a4 a5 a6 a7] [b1 b2 b3 b4 b5 b6 b7])
   (let [l2 (+ a2 b2)
@@ -114,7 +114,7 @@
                                                  (max b3 b4)))]
     [l1 l2 l3 l4 l5 l6 l7]))
 
-(def combine-on-face-proper
+(def ^:no-doc combine-on-face-proper
   (let [mem (atom {})]
     (fn [a b]
       ;(println [a b])
@@ -125,14 +125,14 @@
           ret)))))
 
 
-(defn cof-impl-left [[a1 a2 a3 a4 a5 a6 a7]]
+(defn ^:no-doc cof-impl-left [[a1 a2 a3 a4 a5 a6 a7]]
   (let [l3 (+ 2 a6)
         l5 (inc (max a2 a3 a4 a5))
         l7 (max (inc a4) a2 a3 (inc a7))
         l1 (max l3 l5 a1 (inc l7))]
     [l1 (inc a2) l3 (max a2 a3 a4) l5 (inc a6) l7]))
 
-(def combine-on-face-left
+(def ^:no-doc combine-on-face-left
   (let [mem (atom {})]
     (fn [label]
       (if (<= (first label) 10)
@@ -143,20 +143,20 @@
             ret)))
       (cof-impl-left label))))
 
-(defmacro reverse-label [label]
+(defmacro ^:no-doc reverse-label [label]
   `(let [[a1# a2# a3# a4# a5# a6# a7#] ~label]
      [a1# a2# a5# a6# a3# a4# a7#]))
 
-(defn compute-label-edge [a b EdgeLabels key]
+(defn ^:no-doc compute-label-edge [a b EdgeLabels key]
   (if-let [labels (get EdgeLabels key)]
     (let [label (combine-on-edge (persistent! labels))]
       (if (< b a) (reverse-label label) label))
     false))
 
-(defmacro combine-on-face-right [x]
+(defmacro ^:no-doc combine-on-face-right [x]
   `(reverse-label (combine-on-face-left (reverse-label ~x))))
 
-(defn compute-degrees [tree]
+(defn ^:no-doc compute-degrees [tree]
   (loop [result (transient (clojure.data.int-map/int-map))
          d-seq tree
          deg2 (list)]
