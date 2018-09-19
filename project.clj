@@ -1,4 +1,4 @@
-(defproject twotree.longest-path "0.1.0-SNAPSHOT"
+(defproject twotree.longest-path "0.1.0"
   :description "Library for computing longest paths in 2-trees in O(n) time"
   :url "https://github.com/Biserkov/twotree-longest-path"
   :scm {:name "git" :url "https://github.com/Biserkov/twotree-longest-path"}
