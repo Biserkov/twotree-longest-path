@@ -20,8 +20,9 @@
           (>= m ai s) (recur m ai s idx i (inc i))
           :else (recur m s (max ai t) idx idy (inc i)))))))
 
-(defmacro max2DistinctFolios [a b k]
+(defmacro max2DistinctFolios
   "Computes 𝑚𝑎𝑥⁡{𝑎[𝑖]+𝑏[𝑗] | 𝑖≠𝑗} in O(k) time"
+  [a b k]
   `(let [[a1# a2# ia#] (max2 ~a ~k)
          [b1# b2# ib#] (max2 ~b ~k)]
      (if (not= ia# ib#)
@@ -40,8 +41,9 @@
         ~ab-index (if (= ~cn ~am) ~c3 ~c2)
         ~c1)))
 
-(defn max3DistinctFolios [as bs cs k]
+(defn max3DistinctFolios
   "Computes 𝑚𝑎𝑥⁡{𝑎[𝑖]+𝑏[𝑗]+𝑐[𝑡] | 𝑖≠𝑗≠𝑡≠𝑖} in O(k) time"
+  [as bs cs k]
   (let [[a a2 a3 am an] (max3 as k)
         [b b2 b3 bm bn] (max3 bs k)
         [c c2 c3 cm cn] (max3 cs k)]
@@ -170,8 +172,9 @@
                (rest d-seq)
                (if (= degree 2) (conj deg2 vertex) deg2))))))
 
-(defn longest-path-length [tree]
+(defn longest-path-length
   "Computes the length of the longest path in the 2-tree"
+  [tree]
   (let [[all-degrees deg2] (compute-degrees tree)]
     (if (empty? deg2)
       1
