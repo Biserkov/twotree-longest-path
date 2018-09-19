@@ -6,6 +6,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/data.int-map "0.2.4"]]
+  :deploy-repositories [["releases"  {:sign-releases false :url "https://clojars.org/repo"}]
+                        ["snapshots" {:sign-releases false :url "https://clojars.org/repo"}]]
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
                                   [com.gfredericks/test.chuck "0.2.6"]]}
              :uberjar {:aot :all}}
